@@ -35,37 +35,19 @@
     <div class="card">.</div>
 
     <div v-if="useLogin.datos.RolUsuario === 'Super' ||
-      useLogin.datos.RolUsuario === 'Administrador'
-      ">
+        useLogin.datos.RolUsuario === 'Administrador'
+        ">
       <div class="text4">Configuracion de Interfaz</div>
       <div class="text2">Selector de color</div>
       <q-btn label="Editar color" color="primary" @click="abrirModalEdicion(index)"></q-btn>
       <div>
-        <q-dialog v-model="showModaldetalles">
-          <q-card class="custom-modal">
-            <q-card-section>
-              <q-card-section class="q-pa-md">
-
-
-
-
-              </q-card-section>
-            </q-card-section>
-          </q-card>
-        </q-dialog>
         <q-dialog v-model="card">
           <q-card class="my-card" style="width: 20%;">
-
-
             <q-card-section>
               <q-color v-model="color" label="Selecciona un color" dense />
-
             </q-card-section>
-
-
             <q-card-actions align="right">
               <q-btn v-close-popup flat color="primary" label="Guardar"></q-btn>
-
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -73,10 +55,73 @@
       <div class="card2">.</div>
     </div>
 
+    <q-dialog v-model="showModal" persistent>
+      <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
+      <q-card v-else id="card">
+        <div style="display: flex;">
+          <q-card-section>
+            <div class="text-h4">Editar perfil</div>
+          </q-card-section>
+          <div style="margin-left: auto; margin-bottom: auto;">
+            <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
+          </div>
+        </div>
+
+        <q-card-section class="q-pt-none" id="card">
+          <q-card flat bordered class="my-card">
+            <q-card-section class="q-pa-md">
+              <div class="q-gutter-md">
+                <q-input v-model="nombre" label="Nombre" :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model="apellido" label="Apellido" :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model.number="cedula" type="number" label="Cedula"
+                  :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model.number="telefono" type="number" label="Telefono"
+                  :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
+                  :rules="[validarEmail]">
+                  <template v-slot:append>
+                    <q-icon name="mail" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="q-gutter-md" v-if="bd === true">
+                <q-input v-model="perfilProfesional" label="Perfil Profecional"
+                  :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <input type="file" @change="subir_curriculum" class="custom-file-input">
+              </div>
+            </q-card-section>
+            <q-card-section>
+              <div role="alert"
+                style=" border: 2px solid red; border-radius: 20px;  text-align: center;  background-color: rgba(255, 0, 0, 0.304);"
+                v-if="check !== True">
+                <div>
+                  {{ check }}
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
+          <q-btn flat label="Guardar cambios" @click="guardarCambios()" color="primary" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- modales -->
     <div>
-      <q-dialog v-model="showModal">
+      <q-dialog v-model="sdfgd">
         <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
         <q-card v-else class="custom-modal">
           <q-card-section>
@@ -95,7 +140,7 @@
           <div class="card">.</div>
           <q-card-actions align="right">
             <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
-            <q-btn flat label="Editar Perfil" @click="guardarCambios()" color="primary" />
+            <q-btn flat label="Editar Perfil" @click="validarYGuardar()" color="primary" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -113,12 +158,13 @@ import { load } from "../routes/direccion.js";
 const storecolor = useconfiguracionStore();
 const useLogin = useLoginStore();
 let coloredit = ref("")
+let alert = ref(false)
 const editedColor = ref("");
 const showModal = ref(false);
 let datos = ref("");
 let colorglobal = ref("");
 const colors = ref("");
-
+let idEdicion = ref(null);
 
 async function getcolor() {
   try {
@@ -139,7 +185,35 @@ async function getcolor() {
     console.error("Error al obtener colores:", error);
   }
 }
-let idEdicion = ref(null);
+
+function mostrarAlerta(mensaje) {
+    alert.value = true;
+    check.value = mensaje;
+}
+
+async function validarYGuardar() {
+    validarEmail()
+    if (nombre.value.trim() === "") {
+        mostrarAlerta("El Nombre es obligatorio");
+    } else if (apellidos.value.trim() === "") {
+        mostrarAlerta("El Apellido es obligatorio");
+    } else if (email.value.trim() === "") {
+        mostrarAlerta("El Correo Electrónico es obligatorio");
+    } else if (emailValido.value === true) {
+        mostrarAlerta("Escriba correctamente el su E-mail");
+    } else if (!telefono.value) {
+        mostrarAlerta("El Teléfono es obligatorio");
+    } else if (!RolUsuario.value) {
+        mostrarAlerta("Rol del usrario es obligatorio");
+    } else if (!cedula.value) {
+        mostrarAlerta("La Cédula es obligatoria");
+        console.log(cedula.value);
+    } else if (password.value.trim() === "") {
+        mostrarAlerta("La Contraseña es obligatoria");
+    } else {
+      validarYGuardar()
+    }
+}
 
 const card = ref(false);
 const abrirModalEdicion = (index) => {
@@ -189,9 +263,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* .body{
-  display: flex;
-} */
 .custom-file-input {
   border-bottom: 1px solid #afafaf;
   margin: 20px;
@@ -303,5 +374,30 @@ onMounted(async () => {
   /* Aumenta el tamaño en un 5% */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
   /* Agrega una sombra suave */
+}
+
+/* Aplica las transiciones y animaciones */
+.close-button {
+    animation-duration: 0.3s;
+    /* Duración de la animación */
+    animation-timing-function: ease;
+    /* Función de temporización (puedes ajustarla) */
+}
+
+/* Inicialmente, la "X" estará invisible */
+.close-button:before {
+    opacity: 0;
+}
+
+/* Cuando la "X" está activa, aplica la animación de entrada */
+.close-button.active:before {
+    animation-name: fadeInX;
+    opacity: 1;
+}
+
+/* Cuando la "X" está inactiva, aplica la animación de salida */
+.close-button:not(.active):before {
+    animation-name: fadeOutX;
+    opacity: 0;
 }
 </style>

@@ -7,6 +7,7 @@ import reset from "../routes/reset.js";
 import usuarios from "../routes/Usuarios.js";
 import ciudades from "../routes/Ciudades.js";
 import proyecto from "../routes/Proyectos.js";
+import configuracion from "../routes/Confguracion.js"
 import GuiasAprendiz from "../routes/GuiasAprendiz.js";
 import RolesUsuarios from "../routes/RolesUsuarios.js";
 import investigacion from "../routes/Investigaciones.js"
@@ -21,7 +22,6 @@ import RegistroCalificado from "../routes/RegistroCalificado.js";
 import retroalimentacionRed from "../routes/RetroAlimentacionRed.js"
 import DesarrolloCurricular from "../routes/DesarrolloCurricular.js";
 import InstrumentrosEvaluacion from "../routes/InstrumentrosEvaluacion.js";
-
 import cors from "cors"
 
 const port = process.env.PORT || 3500;
@@ -41,6 +41,7 @@ class Server {
         this.app.use('/ciudad', ciudades);
         this.app.use('/usuarios', usuarios);
         this.app.use('/Proyectos', proyecto);
+        this.app.use('/configuracion', configuracion);
         this.app.use('/GuiasAprendiz', GuiasAprendiz);
         this.app.use('/RolesUsuarios', RolesUsuarios);
         this.app.use('/investigacion', investigacion);

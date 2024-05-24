@@ -10,6 +10,7 @@ import centrosforma from "../components/centroforma.vue"
 import instructores from "../components/instructores.vue"
 import investigacion from "../components/investigacion.vue"
 import configuracion from "../components/configuracion.vue"
+import equipoEjecutor from "../components/EquipoEjecutor.vue"
 import nivelesforma from "../components/NivelesFormacion.vue"
 import redConocimiento from "../components/redConocimiento.vue"
 import materialesforma from "../components/materialesforma.vue";
@@ -59,6 +60,7 @@ const routes = [
     { path: "/instructores", component: instructores, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/configuracion", component: configuracion, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/investigacion", component: investigacion, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
+    { path: "/equipoEjecutor", component: equipoEjecutor, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/redConocimento", component: redConocimiento, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/materialesforma", component: materialesforma, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/materialesApoyo", component: materialesApoyo, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },

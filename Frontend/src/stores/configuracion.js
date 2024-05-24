@@ -2,8 +2,6 @@ import { defineStore } from 'pinia'
 import axios from "axios";
 import { urlBackend } from '../routes/direccion.js'
 export const useconfiguracionStore = defineStore("Configuracion", () => {
-
-
   const getColor = async (token) => {
     try {
       let header = {headers:{"x-token":token}} 
