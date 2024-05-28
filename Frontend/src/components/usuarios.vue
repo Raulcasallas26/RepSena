@@ -1,10 +1,10 @@
-<template >
+<template>
     <div class="q-pa-md">
         <div v-if="load == true">
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else>
-            <q-table flat bordered title="Treats" :rows="user" :columns="columns" row-key="id" :filter="filter"
+            <q-table flat bordered title="Treats" :rows="filteredUsers" :columns="columns" row-key="id" :filter="filter"
                 :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="10"
                 :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]">
                 <template v-slot:top>
@@ -19,6 +19,7 @@
                         </template>
                     </q-input>
                 </template>
+
                 <template v-slot:body-cell-perfil="props">
                     <q-td :props="props">
                         <q-avatar @click="detalles(props)">
@@ -26,12 +27,14 @@
                         </q-avatar>
                     </q-td>
                 </template>
+
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <span class="text-green" v-if="props.row.estado == true">Activo</span>
                         <span class="text-red" v-else>Inactivo</span>
                     </q-td>
                 </template>
+
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
                         <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
@@ -61,51 +64,54 @@
                     <q-card flat bordered class="my-card">
                         <q-card-section class="q-pa-md">
                             <div class="q-gutter-md">
-                                <q-input v-model="nombre" label="Nombre" :rules="[(val) => !!val || 'Campo requerido']" />
+                                <q-input v-model="nombre" label="Nombre"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
                                 <q-input v-model="apellidos" label="Apellido"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
-                                    :rules="[validarEmail]">
-                                    <template v-slot:append>
-                                        <q-icon name="mail" />
-                                    </template>
-                                </q-input>
+                                <q-input v-model.number="cedula" type="number" label="Cedula"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
                                 <q-input v-model.number="telefono" type="number" label="Telefono"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
-                                    :options="opciones" label="Selecciona un Rol" />
-                            </div>
-                            <div class="q-gutter-md">
-                                <input type="file" @change="subir_curriculum" class="custom-file-input">
-                            </div>
-                            <div class="q-gutter-md">
-                                <q-input v-model.number="cedula" type="number" label="Cedula"
-                                    :rules="[(val) => !!val || 'Campo requerido']" />
-                            </div>
-                            <div class="q-gutter-md" v-if="bd === true">
-                                <q-input v-model="perfilProfesional" label="Perfil Profecional"
-                                    :rules="[(val) => !!val || 'Campo requerido']" />
-                            </div>
-                            <div class="q-gutter-md" v-if="bd === true">
-                                <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']" multiple
-                                    :options="redCon" :loading="loading" @virtual-scroll="onScroll" />
+                                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
+                                    :rules="[validarEmail]">
+
+                                    <template v-slot:append>
+                                        <q-icon name="mail" />
+                                    </template>
+                                </q-input>
                             </div>
                             <div class="q-gutter-md" v-if="bd !== true">
-                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'" label="Ingresar password"
-                                    :rules="[(val) => !!val || 'Campo requerido']">
+                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'"
+                                    label="Ingresar password" :rules="[(val) => !!val || 'Campo requerido']">
+
                                     <template v-slot:append>
                                         <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                             @click="isPwd = !isPwd" />
                                     </template>
                                 </q-input>
+                            </div>
+                            <div class="q-gutter-md" v-if="bd === true">
+                                <q-input v-model="perfilProfesional" label="Perfil Profecional"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
+                            </div>
+                            <div class="q-gutter-md">
+                                <input type="file" @change="subir_curriculum" class="custom-file-input">
+                            </div>
+                            <div class="q-gutter-md">
+                                <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
+                                    :options="opciones" label="Selecciona un Rol" />
+                            </div>
+                            <div class="q-gutter-md" v-if="bd === true">
+                                <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']"
+                                    :options="RedCon" label="Red de conocimineto" />
                             </div>
                             <div></div>
                         </q-card-section>
@@ -152,8 +158,10 @@
                             <p><strong style="font-size:large; ">Telefono:</strong> {{ r.telefono }}</p>
                             <p><strong style="font-size:large; ">Curriculum:</strong> <a :href="r.curriculum"
                                     target="_blank">Curriculum</a> </p>
-                            <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}</p>
-                            <p><strong style="font-size:large; ">Red de Conocimiento:</strong> {{ r.RedConocimiento }}</p>
+                            <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}
+                            </p>
+                            <p><strong style="font-size:large; ">Red de Conocimiento:</strong> {{ r.RedConocimiento }}
+                            </p>
                         </q-card-section>
                         <q-card-section>
                         </q-card-section>
@@ -166,13 +174,16 @@
         </q-dialog>
     </div>
 </template>
+
 <script setup>
 import { ref, onMounted, computed, nextTick } from "vue";
 import { Notify } from "quasar"
+import { useRedesConocimientoStore } from "../stores/RedesConocimiento.js";
 import { useUsuariosStore } from "../stores/usuarios.js";
 import { useLoginStore } from "../stores/login.js"
 import { useRolesUsuariosStore } from "../stores/RolesUsuarios.js";
 import { load } from "../routes/direccion.js"
+const useRedCon = useRedesConocimientoStore();
 const useUsuario = useUsuariosStore();
 const useRoles = useRolesUsuariosStore()
 const useLogin = useLoginStore()
@@ -183,6 +194,7 @@ let check = ref("");
 let isPwd = ref(true);
 let user = ref([]);
 let Rol = ref([])
+let Red = ref([])
 let nombre = ref("");
 let apellidos = ref("");
 let email = ref("");
@@ -195,37 +207,32 @@ let RolUsuario = ref("");
 let RedConocimiento = ref("");
 let loading = ref(false);
 let indice = ref(null);
-let r = ref("");
+let r = ref({ value: { estado: true } });
 let opciones = ref([])
+let RedCon = ref([])
 
-const allOptions = [];
-for (let i = 0; i <= 100000; i++) {
-    allOptions.push('Opt ' + i);
-}
 
-const pageSize = 50;
-const lastPage = Math.ceil(allOptions.length / pageSize);
-
-const nextPage = ref(2);
-
-const redCon = computed(() => allOptions.slice(0, pageSize * (nextPage.value - 1)));
-
-const onScroll = ({ target }) => {
-    const lastIndex = redCon.value.length - 1;
-    const scrollArea = target;
-
-    if (loading.value !== true && nextPage.value < lastPage && scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight) {
-        loading.value = true;
-
-        setTimeout(() => {
-            nextPage.value++;
-            nextTick(() => {
-                scrollArea.scrollTop = scrollArea.scrollHeight;
-                loading.value = false;
-            });
-        }, 500);
+const filteredUsers = computed(() => {
+    console.log(useLogin.rol);
+    if (useLogin.rol == "Administrador") {
+        console.log("entre a super");
+        return user.value.filter(u => u.estado === true);
+    } else {
+        console.log("entre a admin");
+        return user.value;
     }
-};
+});
+console.log(filteredUsers.value);
+
+let columns = [
+    { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
+    { name: "nombre", align: "center", label: "Nombre", field: "nombre" },
+    { name: "apellido", align: "center", label: "Apellido", field: "apellidos" },
+    { name: "rolUsuario", align: "center", label: "Rol", field: "RolUsuario" },
+    { name: "email", label: "E-mail", align: "center", field: "email" },
+    { name: "estado", label: "Estado", align: "center", field: "estado" },
+    { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+];
 
 const emailValido = ref(true); // Inicialmente se asume que el correo es válido
 
@@ -247,16 +254,6 @@ function subir_curriculum(event) {
     curriculum.value = event.target.files[0]
     console.log(curriculum.value);
 }
-// pinta la tabla principal
-let columns = [
-    { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
-    { name: "nombre", align: "center", label: "Nombre", field: "nombre" },
-    { name: "apellido", align: "center", label: "Apellido", field: "apellidos" },
-    { name: "rolUsuario", align: "center", label: "Rol", field: "RolUsuario" },
-    { name: "email", label: "E-mail", align: "center", field: "email" },
-    { name: "estado", label: "Estado", align: "center", field: "estado" },
-    { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
-];
 
 
 // const originalRows = [];
@@ -279,6 +276,19 @@ async function listarRoles() {
         value: item.denominacion,
         label: item.denominacion,
     }))
+    load.value = false
+}
+
+async function listaRedCon() {
+    load.value = true
+    let Redc = await useRedCon.getRedesConocimiento(useLogin.token);
+    console.log(Redc);
+    Red.value = Redc.data.RedesConocimiento;
+    RedCon.value = Red.value.map(item => ({
+        value: item.denominacion,
+        label: item.denominacion,
+    }))
+    console.log(RedCon.value);
     load.value = false
 }
 
@@ -317,12 +327,14 @@ async function guardar() {
         const response = await useUsuario.addUsuarios({
             nombre: nombre.value,
             apellidos: apellidos.value,
-            email: email.value,
             cedula: cedula.value,
-            curriculum: curriculum.value,
             telefono: telefono.value,
-            RolUsuario: RolUsuario.value.value,
+            email: email.value,
             password: password.value,
+            perfilProfesional: perfilProfesional.value,
+            curriculum: curriculum.value,
+            RolUsuario: RolUsuario.value.value,
+            RedConocimiento: RedConocimiento.value
         });
         console.log(response.status);
         if (response.status == 201) {
@@ -510,6 +522,7 @@ function agregar() {
 
 onMounted(() => {
     listarUsuarios();
+    listaRedCon();
     listarRoles();
     limpiarFormulario();
 });
@@ -554,6 +567,7 @@ const handleFileSelection = (event) => {
     event.target.remove(); // Elimina el input de tipo file después de su uso
 };
 </script>
+
 <style scoped>
 /* Estilos para el input personalizado */
 .custom-file-input {
