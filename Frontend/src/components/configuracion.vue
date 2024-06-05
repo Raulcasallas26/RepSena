@@ -1,6 +1,7 @@
 <template>
   <div class="card-container">
     <div class="body">
+      <img src="../img/perfil.png" clickable class="absolute-right" id="img1" alt="Perfil">
       <div class="text">Información Personal</div>
       <q-btn style="background-color: green; color: white" :disable="loading" class="agregar" label="Editar"
         @click="showModal = true" />
@@ -64,10 +65,11 @@
           </q-card-section>
           <div style="margin-left: auto; margin-bottom: auto;">
             <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
+        <img src="../img/perfil.png" clickable class="" id="img3" alt="Perfil">
           </div>
         </div>
 
-        <q-card-section class="q-pt-none" id="card">
+        <q-card-section class="q-pt-none" id="card" style="margin-top: 10rem;">
           <q-card flat bordered class="my-card">
             <q-card-section class="q-pa-md">
               <div class="q-gutter-md">
@@ -263,6 +265,26 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+#img1 {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  margin-top: 3rem;
+  border-radius: 50%;
+}
+
+#img3 {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /* Para hacer la imagen redonda */
+  display: block; /* Para permitir el centrado con auto margenes */
+  margin-top: 2rem; 
+  margin-bottom: 1rem; 
+  left: 50%; /* Para centrar horizontalmente */
+  transform: translateX(-50%); /* Para ajustar la posición al centro */
+}
+
 .custom-file-input {
   border-bottom: 1px solid #afafaf;
   margin: 20px;

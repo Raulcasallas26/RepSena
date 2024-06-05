@@ -107,9 +107,9 @@
                             </div>
                             <div class="q-gutter-md">
                                 <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
-                                    :options="opciones" label="Selecciona un Rol" />
+                                    :options="opciones" label="Selecciona un Rol" @update:model-value="instru" />
                             </div>
-                            <div class="q-gutter-md" v-if="bd === true">
+                            <div class="q-gutter-md" v-if="instructor === true || r.RolUsuario === 'Instructor'">
                                 <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']"
                                     :options="RedCon" label="Red de conocimineto" />
                             </div>
@@ -142,7 +142,7 @@
                     <q-card-section>
                         <div class="text-h4">Detalles de {{ nombre }}</div>
                     </q-card-section>
-                    <div style="margin-left: auto;    margin-bottom: auto;">
+                    <div style="margin-left: auto; margin-bottom: auto;">
                         <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
                     </div>
                 </div>
@@ -160,7 +160,8 @@
                                     target="_blank">Curriculum</a> </p>
                             <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}
                             </p>
-                            <p><strong style="font-size:large; ">Red de Conocimiento:</strong> {{ r.RedConocimiento }}
+                            <p v-if="r.RolUsuario === 'Instructor'"><strong style="font-size:large; ">Red de Conocimiento:</strong> 
+                            {{r.RedConocimiento }}
                             </p>
                         </q-card-section>
                         <q-card-section>
@@ -207,22 +208,20 @@ let RolUsuario = ref("");
 let RedConocimiento = ref("");
 let loading = ref(false);
 let indice = ref(null);
+let verIn = ref()
+let instructor = ref(false)
 let r = ref({ value: { estado: true } });
 let opciones = ref([])
 let RedCon = ref([])
 
 
 const filteredUsers = computed(() => {
-    console.log(useLogin.rol);
     if (useLogin.rol == "Administrador") {
-        console.log("entre a super");
         return user.value.filter(u => u.estado === true);
     } else {
-        console.log("entre a admin");
         return user.value;
     }
 });
-console.log(filteredUsers.value);
 
 let columns = [
     { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
@@ -276,6 +275,7 @@ async function listarRoles() {
         value: item.denominacion,
         label: item.denominacion,
     }))
+    verIn.value = opciones.value
     load.value = false
 }
 
@@ -291,6 +291,23 @@ async function listaRedCon() {
     console.log(RedCon.value);
     load.value = false
 }
+
+console.log(RedCon);
+
+async function instru() {
+    if (RolUsuario.value.value == "Instructor") {
+        console.log(RolUsuario.value);
+        console.log("entre a instructor");
+        instructor.value = true;
+        return true;
+    } else {
+        console.log("entre a otro usuario");
+        console.log(RolUsuario.value);
+        instructor.value = false;
+        return false;
+    }
+};
+
 
 function mostrarAlerta(mensaje) {
     alert.value = true;
@@ -334,7 +351,7 @@ async function guardar() {
             perfilProfesional: perfilProfesional.value,
             curriculum: curriculum.value,
             RolUsuario: RolUsuario.value.value,
-            RedConocimiento: RedConocimiento.value
+            RedConocimiento: RedConocimiento.value.value,
         });
         console.log(response.status);
         if (response.status == 201) {
@@ -435,6 +452,10 @@ async function editarUser() {
             UsuarioData.RolUsuario = RolUsuario.value.value
         }
 
+        if (RedConocimiento.value && RedConocimiento.value.value) {
+            UsuarioData.RedConocimiento = RedConocimiento.value.value
+        }
+
 
         let r = await useUsuario.editUsuarios(
             indice.value,
@@ -508,7 +529,9 @@ function limpiarFormulario() {
     curriculum.value = "";
     password.value = "";
     RolUsuario.value = "";
+    RedConocimiento.value = "";
     bd.value = false;
+    instructor.value = false;
     check.value = ""
 }
 
@@ -522,8 +545,8 @@ function agregar() {
 
 onMounted(() => {
     listarUsuarios();
-    listaRedCon();
     listarRoles();
+    listaRedCon(); 
     limpiarFormulario();
 });
 

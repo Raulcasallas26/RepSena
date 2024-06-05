@@ -6,7 +6,7 @@
     <div v-else>
       <q-table class="tabla" flat bordered title="Treats" :rows="proga" :columns="columns" row-key="id" :filter="filter"
         :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="20"
-        :virtual-scroll-sticky-size-start="20" :rows-per-page-options="[15]">>
+        :virtual-scroll-sticky-size-start="20" :rows-per-page-options="[15]" @row-click="AbrirPrograma()">>
         <template v-slot:top>
           <q-btn style="background-color: green; color: white" :disable="loading" label="Agregar" @click="alert = true" />
           <div style="margin-left: 5%" class="text-h4">Programas De Formacion</div>
@@ -100,7 +100,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineExpose } from "vue";
+import { useRoute } from 'vue-router';
 import { useProgramasFormacionStore } from "../stores/programasformacion.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
@@ -117,10 +118,14 @@ let denominacion = ref("");
 let version = ref("");
 let indice = ref(null);
 
-
 function subir_archivo(event) {
   archivo.value = event.target.files[0]
   console.log(archivo.value);
+}
+
+function AbrirPrograma() {
+  sessionStorage.setItem('usestado', true);
+  window.location.reload(); 
 }
 
 let columns = [

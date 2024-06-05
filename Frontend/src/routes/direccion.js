@@ -9,5 +9,4 @@ const urlBackend= "http://localhost:3500"
 let load = ref( false )
 
 
-
-export{urlBackend, load }
+export{urlBackend, load, }

@@ -6,7 +6,7 @@
                     <img :src="currentImage" style="width: 1000px;" class="bg" alt="Cargando imagen..." id="img">
                 </div>
             </div>
-            <div style="flex: 2 1 400px;  ">
+            <div style="flex: 2 1 400px;">
                 <div class="col-7" style="position: relative; height: 100vh; max-width: 100%; ">
                     <div id="cart" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                         <q-card id="card" flat bordered class="my-card">
@@ -14,12 +14,12 @@
                                 <h5 id="h1" style="display: flex; justify-content: center;">Iniciar sesion</h5>
                             </q-card-section>
                             <q-card-section class="q-pa-md">
-                <p>Usuarios y contraseña <br>
-                    Administrador:-- 456 <br>  
-                    Gestor:--------- 789 <br>
-                    Instructor:----- 147 <br>
-                    Super Usuario:-- 123
-                </p>
+                                <!-- <p>Usuarios y contraseña <br>
+                                    Administrador:-- 456 <br>
+                                    Gestor:--------- 789 <br>
+                                    Instructor:----- 147 <br>
+                                    Super Usuario:-- 123
+                                </p> -->
                                 <div role="alert"
                                     style="border: 2px solid red; border-radius: 20px; text-align: center; background-color: rgba(255, 0, 0, 0.304);"
                                     v-if="check !== ''">
@@ -35,8 +35,8 @@
                                     <q-input v-model="password" :type="isPwd ? 'password' : 'text'"
                                         :rules="[val => !!val || 'Campo requerido']" label="Ingresar password">
                                         <template v-slot:append>
-                                            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
-                                                @click="isPwd = !isPwd" />
+                                            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'"
+                                                class="cursor-pointer" @click="isPwd = !isPwd" />
                                         </template>
                                     </q-input>
                                 </div>
@@ -45,7 +45,7 @@
                                 <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
                                 <q-btn v-else
                                     style="background-color: green;display: flex; justify-content: center; color: white;"
-                                    @click="validar()"  @keyup.enter="handleKeyPress">
+                                    @click="validar()">
                                     Iniciar</q-btn>
                             </div>
                             <q-card-section>
@@ -74,6 +74,7 @@
                         <q-card-section class="q-pa-md">
                             <div class="q-gutter-md">
                                 <q-input v-model="email" type="email" label="E-mail" :rules="[validarEmail]">
+
                                     <template v-slot:append>
                                         <q-icon name="email" />
                                     </template>
@@ -123,8 +124,7 @@
                 </q-card-section>
 
                 <q-card-actions align="right">
-                    <q-btn flat label="Iniciar sesion" to="/" @click=" comprovar()" color="primary"
-                        v-close-popup />
+                    <q-btn flat label="Iniciar sesion" to="/" @click=" comprovar()" color="primary" v-close-popup />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -209,15 +209,10 @@ function limpiar() {
 }
 
 onMounted(() => {
-    document.addEventListener('keyup', handleKeyPress);
+
 });
 
-function handleKeyPress(event) {
-    if (event.key === 'Enter' && !$refs.startButton.hidden) {
-        event.preventDefault();
-        validar();
-    }
-}
+
 
 function olvideContra() {
     ingresaCorreo.value = true;
@@ -349,6 +344,7 @@ onMounted(() => {
 });
 
 </script>
+
 <style scoped>
 .imagen {
     display: flex;
@@ -361,17 +357,6 @@ onMounted(() => {
     position: relative;
 }
 
-/* #card {
-    margin-left: 30%;
-    margin-right: 30%;
-    margin-top: 10%;
-    display: block;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid rgba(29, 88, 32, 0.35);
-    border-radius: 10px;
-} */
-
 #cart {
     width: 25rem;
     height: 30rem;
@@ -382,6 +367,56 @@ onMounted(() => {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+#card {
+    background-color: #e1e1e18c;
+    /* Color de fondo suave */
+    border-radius: 10px;
+    /* Bordes redondeados */
+    padding: 20px;
+    /* Espaciado interno */
+    position: relative;
+    /* Necesario para el pseudo-elemento */
+    transition: box-shadow 0.3s;
+    /* Transición suave para el resaltado */
+}
+
+#card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Sombra al pasar el mouse */
+}
+
+/* Degradado para el borde */
+#card::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.74), rgba(186, 186, 186, 0.5), rgba(164, 164, 164, 0.5), rgba(188, 188, 188, 0.5));
+    background-size: 400% 400%;
+    border-radius: 15px;
+    opacity: 0;
+    transition: opacity 0.8s, transform 0.5s;
+    filter: blur(8px);
+    /* Difuminado del borde */
+}
+
+#card:hover::before {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* Estilo para el texto */
+h2 {
+    margin-bottom: 10px;
+}
+
+p {
+    color: #070707;
+}
+
 
 #img {
     max-width: 100%;
@@ -404,4 +439,4 @@ onMounted(() => {
     /* Big text shows off the effect best */
     font-weight: bold;
 }
-</style> 
+</style>

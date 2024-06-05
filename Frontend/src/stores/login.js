@@ -10,6 +10,7 @@ export const useLoginStore = defineStore(
         let rol = ref("")
         let router = useRouter()
         let datos = ref("")
+        let usestado = ref (false)
 
         const validar = async (cedula, password) => {
             try {
@@ -35,7 +36,8 @@ export const useLoginStore = defineStore(
         console.log(datos);
         const logout = () => {
             token.value = ""
-            rol.value = ""  // También puedes reiniciar la cédula al cerrar sesión si es necesario
+            rol.value = ""
+            sessionStorage.setItem('usestado', JSON.stringify(false));
             router.push("/")
         }
 
@@ -57,7 +59,7 @@ export const useLoginStore = defineStore(
         }
 
         return {
-            validar, token, logout, rol, datos, reset
+            validar, token, logout, rol, datos, reset, usestado
         }
     },
     {

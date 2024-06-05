@@ -1,16 +1,23 @@
 <template>
-  <div class="center">
-    <img
-      src="../img/icono.png"
-      id="img2"
-      alt=""
-    />
-
-    <!-- https://lostramites.com.co/wp-content/uploads/logo-de-SENA-png-Negro-300x300.png <h1 class="h1">Bienvenido!!!</h1> -->
-  </div>
+  <div class="container">
+    <div class="center">
+      <a>
+        <img src="../img/perfil.png" clickable @click="configuracion()" class="absolute-top-right" id="img1" alt="Perfil">
+      </a>
+      <img src="../img/icono.png" id="img2" alt="" />
+    </div>
+  </div>  
 </template>
 
 <script setup>
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from "vue-router";
+let router = useRouter();
+
+const configuracion = () => {
+  router.push("/configuracion");
+};
+
 </script>
 
 <style scoped>
@@ -23,14 +30,19 @@
 }
 
 #img2 {
-  max-width: 100%; /* Aumentar el tamaño de la imagen */
+  width: 35rem;
+  height: auto;
+  max-width: 100%;
+  /* Aumentar el tamaño de la imagen */
   opacity: 40%;
   filter: brightness(0%) grayscale(100%);
 }
 
-.h1 {
-  font-family: cursive;
-  font-size: 9vw;
-  margin-top: -5%;
+#img1 {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  margin-top: 3rem;
+  border-radius: 50%;
 }
 </style>
