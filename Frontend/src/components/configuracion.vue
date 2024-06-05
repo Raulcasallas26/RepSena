@@ -1,10 +1,14 @@
 <template>
   <div class="card-container">
+    <div v-if="load == true" style="margin-top: 5px;">
+      <q-linear-progress ark rounded indeterminate color="green"  />
+    </div>
     <div class="body">
-      <img src="../img/perfil.png" clickable class="absolute-right" id="img1" alt="Perfil">
-      <div class="text">Información Personal</div>
-      <q-btn style="background-color: green; color: white" :disable="loading" class="agregar" label="Editar"
-        @click="showModal = true" />
+      <img src="../img/perfil.png" clickable @click="showModal = true"  class="absolute-right" id="img1" alt="Perfil">
+      <div class="body" style="position: relative">
+        <div style="margin-left: 5%" class="text-h4">Mi perfil </div>
+        <q-space />
+      </div>
     </div>
 
     <div class="text2">Datos Personales</div>
@@ -35,12 +39,7 @@
 
     <div class="card">.</div>
 
-    <div v-if="useLogin.datos.RolUsuario === 'Super' ||
-        useLogin.datos.RolUsuario === 'Administrador'
-        ">
-      <div class="text4">Configuracion de Interfaz</div>
-      <div class="text2">Selector de color</div>
-      <q-btn label="Editar color" color="primary" @click="abrirModalEdicion(index)"></q-btn>
+    <div>
       <div>
         <q-dialog v-model="card">
           <q-card class="my-card" style="width: 20%;">
@@ -53,7 +52,10 @@
           </q-card>
         </q-dialog>
       </div>
-      <div class="card2">.</div>
+      <div class="card2">.
+        <q-btn style="background-color: green; color: white; " class="absolute-right" label="Editar"
+          @click="showModal = true" />
+      </div>
     </div>
 
     <q-dialog v-model="showModal" persistent>
@@ -65,7 +67,7 @@
           </q-card-section>
           <div style="margin-left: auto; margin-bottom: auto;">
             <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
-        <img src="../img/perfil.png" clickable class="" id="img3" alt="Perfil">
+            <img src="../img/perfil.png" clickable class="" id="img3" alt="Perfil">
           </div>
         </div>
 
@@ -89,12 +91,13 @@
               <div class="q-gutter-md">
                 <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
                   :rules="[validarEmail]">
+
                   <template v-slot:append>
                     <q-icon name="mail" />
                   </template>
                 </q-input>
               </div>
-              <div class="q-gutter-md" v-if="bd === true">
+              <div class="q-gutter-md" >
                 <q-input v-model="perfilProfesional" label="Perfil Profecional"
                   :rules="[(val) => !!val || 'Campo requerido']" />
               </div>
@@ -111,6 +114,21 @@
                 </div>
               </div>
             </q-card-section>
+            <q-card-section v-if="useLogin.datos.RolUsuario === 'Super' ||
+            useLogin.datos.RolUsuario === 'Administrador'">
+              <div>
+                <q-input filled v-model="colors" :rules="['anyColor']" hint="Digitar el color RGB" class="my-input">
+
+                  <template v-slot:append>
+                    <q-icon name="colorize" class="cursor-pointer">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                        <q-color v-model="colors" />
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+            </q-card-section>
           </q-card>
         </q-card-section>
 
@@ -120,33 +138,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <!-- modales -->
-    <div>
-      <q-dialog v-model="sdfgd">
-        <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
-        <q-card v-else class="custom-modal">
-          <q-card-section>
-            <div class="text3">Editar Información Personal</div>
-            <div class="card">.</div>
-            <q-input v-model="nombre" label="Nombre" />
-            <q-input v-model="apellido" label="Apellidos" />
-            <q-input v-model="numidentificacion" label="Numero de indentificacion" />
-            <q-input v-model="numtelefono" label="Numero de telefono" />
-            <q-input v-model="correo" label="correo electronico" />
-            <q-input v-model="perfilprofe" label="Perfil Profesional" />
-            <div class="q-gutter-md">
-              <input type="file" @change="subir_curriculum" class="custom-file-input">
-            </div>
-          </q-card-section>
-          <div class="card">.</div>
-          <q-card-actions align="right">
-            <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
-            <q-btn flat label="Editar Perfil" @click="validarYGuardar()" color="primary" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-    </div>
   </div>
 </template>
 
@@ -169,6 +160,7 @@ const colors = ref("");
 let idEdicion = ref(null);
 
 async function getcolor() {
+  load.value = true
   try {
     let color = await storecolor.getColor(useLogin.token);
     colorglobal.value = color.data;
@@ -183,81 +175,37 @@ async function getcolor() {
     let cortado = cortar.filter((item) => item !== "").join(",");
     colors.value = cortado;
     console.log(colors.value);
+    load.value = false
   } catch (error) {
     console.error("Error al obtener colores:", error);
+    load.value = false
   }
 }
 
 function mostrarAlerta(mensaje) {
-    alert.value = true;
-    check.value = mensaje;
+  alert.value = true;
+  check.value = mensaje;
 }
 
 async function validarYGuardar() {
-    validarEmail()
-    if (nombre.value.trim() === "") {
-        mostrarAlerta("El Nombre es obligatorio");
-    } else if (apellidos.value.trim() === "") {
-        mostrarAlerta("El Apellido es obligatorio");
-    } else if (email.value.trim() === "") {
-        mostrarAlerta("El Correo Electrónico es obligatorio");
-    } else if (emailValido.value === true) {
-        mostrarAlerta("Escriba correctamente el su E-mail");
-    } else if (!telefono.value) {
-        mostrarAlerta("El Teléfono es obligatorio");
-    } else if (!RolUsuario.value) {
-        mostrarAlerta("Rol del usrario es obligatorio");
-    } else if (!cedula.value) {
-        mostrarAlerta("La Cédula es obligatoria");
-        console.log(cedula.value);
-    } else if (password.value.trim() === "") {
-        mostrarAlerta("La Contraseña es obligatoria");
-    } else {
-      validarYGuardar()
-    }
-}
-
-const card = ref(false);
-const abrirModalEdicion = (index) => {
-  idEdicion.value = index;
-  const color = colors.value[index];
-  if (color) {
-    coloredit.value = color.color;
-    card.value = true;
+  validarEmail()
+  if (nombre.value.trim() === "") {
+    mostrarAlerta("El Nombre es obligatorio");
+  } else if (apellidos.value.trim() === "") {
+    mostrarAlerta("El Apellido es obligatorio");
+  } else if (!cedula.value) {
+    mostrarAlerta("La Cédula es obligatoria");
+    console.log(cedula.value);
+  } else if (!telefono.value) {
+    mostrarAlerta("El Teléfono es obligatorio");
+  } else  if (email.value.trim() === "") {
+    mostrarAlerta("El Correo Electrónico es obligatorio");
+  } else if (emailValido.value === true) {
+    mostrarAlerta("Escriba correctamente el su E-mail");
   } else {
-    console.error(`No se encontró un ambiente en el índice ${index}`);
+    validarYGuardar()
   }
-};
-const guardarCambios = async () => {
-  if (idEdicion.value !== null) {
-    const index = idEdicion.value;
-    const InstrumentoEditado = {
-      colorId: index, // Supongamos que tienes un ID asociado con cada color
-    };
-    console.log(InstrumentoEditado);
-
-    // Llamar al método de la store para editar el instrumento en la base de datos
-    try {
-      const response = await storecolor.actualizarColor(
-        datos.value,
-        InstrumentoEditado
-      );
-
-      console.log(response);
-      if (response.status === 200) {
-        // Realiza las acciones necesarias después de guardar los cambios
-        idEdicion.value = null;
-        getcolor();
-      } else {
-        console.error("Error al guardar los cambios en el servidor");
-      }
-    } catch (error) {
-      console.error("Error al actualizar el color:", error);
-    }
-  }
-};
-
-
+}
 onMounted(async () => {
   await getcolor();
 
@@ -265,6 +213,18 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.card2 {
+  position: relative;
+  padding: 1rem;
+}
+
+.btn-right {
+  position: absolute;
+  right: 1rem; /* Ajusta el valor según sea necesario */
+  top: 50%; /* Centra el botón verticalmente */
+  transform: translateY(-50%);
+}
+
 #img1 {
   position: absolute;
   width: 100px;
@@ -277,12 +237,16 @@ onMounted(async () => {
   position: absolute;
   width: 150px;
   height: 150px;
-  border-radius: 50%; /* Para hacer la imagen redonda */
-  display: block; /* Para permitir el centrado con auto margenes */
-  margin-top: 2rem; 
-  margin-bottom: 1rem; 
-  left: 50%; /* Para centrar horizontalmente */
-  transform: translateX(-50%); /* Para ajustar la posición al centro */
+  border-radius: 50%;
+  /* Para hacer la imagen redonda */
+  display: block;
+  /* Para permitir el centrado con auto margenes */
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  left: 50%;
+  /* Para centrar horizontalmente */
+  transform: translateX(-50%);
+  /* Para ajustar la posición al centro */
 }
 
 .custom-file-input {
@@ -400,26 +364,26 @@ onMounted(async () => {
 
 /* Aplica las transiciones y animaciones */
 .close-button {
-    animation-duration: 0.3s;
-    /* Duración de la animación */
-    animation-timing-function: ease;
-    /* Función de temporización (puedes ajustarla) */
+  animation-duration: 0.3s;
+  /* Duración de la animación */
+  animation-timing-function: ease;
+  /* Función de temporización (puedes ajustarla) */
 }
 
 /* Inicialmente, la "X" estará invisible */
 .close-button:before {
-    opacity: 0;
+  opacity: 0;
 }
 
 /* Cuando la "X" está activa, aplica la animación de entrada */
 .close-button.active:before {
-    animation-name: fadeInX;
-    opacity: 1;
+  animation-name: fadeInX;
+  opacity: 1;
 }
 
 /* Cuando la "X" está inactiva, aplica la animación de salida */
 .close-button:not(.active):before {
-    animation-name: fadeOutX;
-    opacity: 0;
+  animation-name: fadeOutX;
+  opacity: 0;
 }
 </style>
