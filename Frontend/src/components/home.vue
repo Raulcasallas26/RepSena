@@ -1,9 +1,6 @@
 <template>
   <div class="container">
     <div class="center">
-      <a>
-        <img src="../img/perfil.png" clickable @click="configuracion()" class="absolute-top-right" id="img1" alt="Perfil">
-      </a>
       <img src="../img/icono.png" id="img2" alt="" />
     </div>
   </div>  
@@ -14,9 +11,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from "vue-router";
 let router = useRouter();
 
-const configuracion = () => {
-  router.push("/configuracion");
-};
+
 
 </script>
 

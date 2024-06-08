@@ -7,7 +7,7 @@
                 </div>
             </div>
             <div style="flex: 2 1 400px;">
-                <div class="col-7" style="position: relative; height: 100vh; max-width: 100%; ">
+                <div class="col-7" id="col7" style="position: relative; height: 100vh; max-width: 100%; ">
                     <div id="cart" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                         <q-card id="card" flat bordered class="my-card">
                             <q-card-section>
@@ -44,7 +44,7 @@
                             <div style="display: flex;  justify-content: center;">
                                 <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
                                 <q-btn v-else
-                                    style="background-color: green;display: flex; justify-content: center; color: white;"
+                                    style="background-color: green;display: flex; justify-content: center; color: white;" @keyup.enter="validar()" 
                                     @click="validar()">
                                     Iniciar</q-btn>
                             </div>
@@ -357,6 +357,36 @@ onMounted(() => {
     position: relative;
 }
 
+#col7 {
+    position: relative; /* Necesario para posicionar el pseudo-elemento */
+    width: 100%;
+    height: 100vh;
+    display: flex; /* Opcional: Usar flexbox para alinear contenido */
+    align-items: center; /* Opcional: Centrar contenido verticalmente */
+    justify-content: center; /* Opcional: Centrar contenido horizontalmente */
+    overflow: hidden; /* Asegura que el pseudo-elemento no se salga del contenedor */
+}
+
+#col7::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("../img/logo_sena.png");
+    background-size: cover; /* Ajusta la imagen para cubrir el área del contenedor */
+    background-position: center; /* Centra la imagen en el contenedor */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    opacity: 0.1; /* Ajusta la opacidad de la imagen */
+    z-index: 1; /* Coloca el pseudo-elemento detrás del contenido */
+}
+
+#col7 > * {
+    position: relative; /* Asegura que el contenido se muestre encima del pseudo-elemento */
+    z-index: 2;
+}
+
 #cart {
     width: 25rem;
     height: 30rem;
@@ -379,10 +409,11 @@ onMounted(() => {
     /* Necesario para el pseudo-elemento */
     transition: box-shadow 0.3s;
     /* Transición suave para el resaltado */
-}
+}   
 
 #card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #070707;
+    box-shadow: 0 4px 8px rgb(0, 0, 0);
     /* Sombra al pasar el mouse */
 }
 
@@ -394,7 +425,7 @@ onMounted(() => {
     left: -5px;
     right: -5px;
     bottom: -5px;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.74), rgba(186, 186, 186, 0.5), rgba(164, 164, 164, 0.5), rgba(188, 188, 188, 0.5));
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.764), rgba(246, 246, 246, 0.74), rgba(219, 218, 218, 0.789), rgba(188, 188, 188, 0.5));
     background-size: 400% 400%;
     border-radius: 15px;
     opacity: 0;
@@ -425,7 +456,7 @@ p {
     display: flex;
     margin-bottom: 0;
     border-radius: 2px;
-    border: 0.5px solid #999;
+    border: 0.5px solid #c4c4c4a5;
     object-fit: cover;
     object-position: center;
 }

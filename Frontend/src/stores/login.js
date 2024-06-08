@@ -11,6 +11,7 @@ export const useLoginStore = defineStore(
         let router = useRouter()
         let datos = ref("")
         let usestado = ref (false)
+        let inicio = ref (false)
 
         const validar = async (cedula, password) => {
             try {
@@ -23,8 +24,7 @@ export const useLoginStore = defineStore(
                 token.value = res.data.tockent
                 rol.value = res.data.usuario.RolUsuario
                 datos.value = res.data.usuario
-
-                console.log(datos);
+                inicio.value = true
                 return res
             } catch (error) {
                 console.log("error en la petición inicio sesión");
@@ -59,7 +59,7 @@ export const useLoginStore = defineStore(
         }
 
         return {
-            validar, token, logout, rol, datos, reset, usestado
+            validar, token, logout, rol, datos, reset, usestado, inicio
         }
     },
     {
