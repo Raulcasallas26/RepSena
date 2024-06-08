@@ -3,10 +3,10 @@
     <q-header elevated class="text-white interFaz" id="header" :style="{ 'background-color': colors }">
       <q-toolbar>
         <q-avatar v-if="useLogin.inicio === false || bd === false && notMobile">
-          <img src="../src/img/logo_sena.png"  style="filter: invert(1);" alt="">
+          <img src="../src/img/logo_sena.png" style="filter: invert(1);" alt="">
         </q-avatar>
         <div v-else>
-          <q-btn-dropdown flat round dense v-if=" isMobile   " icon="menu"
+          <q-btn-dropdown flat round dense v-if="isMobile" icon="menu"
             :class="{ 'justify-left': bd === false && isMobile }" style="float: left;">
 
             <q-list padding>
@@ -38,8 +38,7 @@
                 v-if="useLogin.rol === 'Super' || useLogin.rol === 'Administrador' || useLogin.rol === 'Gestor'"
                 v-ripple to="/instructores">
                 <q-item-section avatar>
-                  <q-icon
-                    name="" />
+                  <q-icon name="" />
                 </q-item-section>
                 <q-item-section> Instructores </q-item-section>
               </q-item>
@@ -176,31 +175,31 @@
         <q-toolbar-title>
         </q-toolbar-title>
         <div>
-          <img src="./img/perfil.png" flat round dense v-if="!isInLoginComponent && useLogin.inicio === true" clickable @click="configuracion()"
-            class="absolute-top-right" id="img1" alt="Perfil">
+          <img src="./img/perfil.png" flat round dense v-if="!isInLoginComponent && useLogin.inicio === true" clickable
+            @click="configuracion()" class="absolute-top-right" id="img1" alt="Perfil">
         </div>
-        <q-btn flat round dense v-if="!isInLoginComponent && useLogin.inicio === true"  icon="login" @click="cerrar()">
+        <q-btn flat round dense v-if="!isInLoginComponent && useLogin.inicio === true" icon="login" @click="cerrar()">
         </q-btn>
       </q-toolbar>
     </q-header>
-    <q-drawer v-if="!isInLoginComponent && !isMobile && useLogin.inicio === true" bd=true v-model="drawer" show-if-above :mini="miniState"
-      @mouseover="miniState = false" @mouseout="miniState = true" mini-to-overlay :max-width="100" :breakpoint="500"
-      bordered :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
-      <q-scroll-area class="fit" :horizontal-thumb-style="{ opacity: 0 }"  style="background-color: white">
+    <q-drawer v-if="!isInLoginComponent && !isMobile && useLogin.inicio === true" bd=true v-model="drawer" show-if-above
+      :mini="miniState" @mouseover="miniState = false" @mouseout="miniState = true" mini-to-overlay :max-width="100"
+      :breakpoint="500" bordered :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
+      <q-scroll-area class="fit" :horizontal-thumb-style="{ opacity: 0 }" style="background-color: white">
         <q-list padding>
 
           <q-item clickable v-ripple id="btn" to="/home">
             <q-item-section avatar>
               <q-icon name="home" />
             </q-item-section>
-            <q-item-section>Inicio </q-item-section>
+            <q-item-section>Inicio</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Administrador'" v-ripple to="/usuarios">
             <q-item-section avatar>
               <q-icon name="people" />
             </q-item-section>
-            <q-item-section> Usuarios</q-item-section>
+            <q-item-section>Usuarios</q-item-section>
           </q-item>
 
           <q-item clickable
@@ -216,17 +215,16 @@
             v-if="useLogin.rol === 'Super' || useLogin.rol === 'Administrador' || useLogin.rol === 'Gestor'" v-ripple
             to="/instructores">
             <q-item-section avatar>
-              <q-icon
-                name="" />
+              <q-icon name="school" />
             </q-item-section>
-            <q-item-section> Instructores </q-item-section>
+            <q-item-section>Instructores</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Gestor'" v-ripple to="/equipoEjecutor">
             <q-item-section avatar>
-              <q-icon name="people" />
+              <q-icon name="group_work" />
             </q-item-section>
-            <q-item-section> Equipo Ejecutor </q-item-section>
+            <q-item-section>Equipo Ejecutor</q-item-section>
           </q-item>
 
           <q-item clickable
@@ -235,81 +233,79 @@
             <q-item-section avatar>
               <q-icon name="book" />
             </q-item-section>
-            <q-item-section> Programas de Formacion</q-item-section>
+            <q-item-section>Programas de Formación</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple to="/ambientes">
             <q-item-section avatar>
               <q-icon name="dashboard" />
             </q-item-section>
-            <q-item-section> Ambientes de formación </q-item-section>
+            <q-item-section>Ambientes de Formación</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/materialesApoyo">
             <q-item-section avatar>
-              <q-icon name="img:https://cdn-icons-png.flaticon.com/512/1556/1556328.png" />
+              <q-icon name="library_books" />
             </q-item-section>
-            <q-item-section>Materiales de apoyo</q-item-section>
+            <q-item-section>Materiales de Apoyo</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/redConocimento">
             <q-item-section avatar>
-              <q-icon name="img:https://cdn-icons-png.flaticon.com/512/207/207233.png" />
+              <q-icon name="share" />
             </q-item-section>
-            <q-item-section> Red de Conocimiento </q-item-section>
+            <q-item-section>Red de Conocimiento</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/proyectos">
             <q-item-section avatar>
               <q-icon name="schema" />
             </q-item-section>
-            <q-item-section> proyectos </q-item-section>
+            <q-item-section>Proyectos</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/registroCalificado">
             <q-item-section avatar>
-              <q-icon name="img:https://cdn-icons-png.flaticon.com/128/4933/4933054.png" />
+              <q-icon name="assignment" />
             </q-item-section>
-            <q-item-section> Registro Calificado </q-item-section>
+            <q-item-section>Registro Calificado</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple
             to="/desarrolloCurricular">
             <q-item-section avatar>
-              <q-icon
-                name="img:https://img.freepik.com/vector-premium/diseno-educativo-desarrollo-curricular-aprendizaje-e-instruccion-vector-diseno-pluma_989823-28.jpg?w=2000" />
+              <q-icon name="design_services" />
             </q-item-section>
-            <q-item-section> Desarrollo Curricular </q-item-section>
+            <q-item-section>Desarrollo Curricular</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/guias">
             <q-item-section avatar>
-              <q-icon name="img:https://cdn-icons-png.flaticon.com/512/4345/4345535.png" />
+              <q-icon name="menu_book" />
             </q-item-section>
-            <q-item-section>Guias de Aprendizaje</q-item-section>
+            <q-item-section>Guías de Aprendizaje</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Administrador'" v-ripple to="/roles">
             <q-item-section avatar>
-              <q-icon
-                name="img:https://icons.veryicon.com/png/o/education-technology/data-exchange/role-management-13.png" />
+              <q-icon name="admin_panel_settings" />
             </q-item-section>
-            <q-item-section> Roles de Usuario</q-item-section>
+            <q-item-section>Roles de Usuario</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Gestor'" v-ripple
             to="/retroalimentacionRed">
             <q-item-section avatar>
-              <q-icon name="img:https://cdn-icons-png.flaticon.com/128/943/943424.png" />
+              <q-icon name="feedback" />
             </q-item-section>
-            <q-item-section> Retroalimentacion de Red </q-item-section>
+            <q-item-section>Retroalimentación de Red</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple to="/investigacion">
             <q-item-section avatar>
               <q-icon name="search" />
             </q-item-section>
-            <q-item-section> Investigacion </q-item-section>
+            <q-item-section>Investigación</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Administrador'" v-ripple
@@ -317,30 +313,31 @@
             <q-item-section avatar>
               <q-icon name="school" />
             </q-item-section>
-            <q-item-section>Centros de Formacion</q-item-section>
+            <q-item-section>Centros de Formación</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/instrumentosEvaluacion">
             <q-item-section avatar>
               <q-icon name="quiz" />
             </q-item-section>
-            <q-item-section> Instrumentos de Evaluacion </q-item-section>
+            <q-item-section>Instrumentos de Evaluación</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple
-            to="">
+            to="/materialesforma">
             <q-item-section avatar>
-              <q-icon :src="materiales" />
+              <q-icon name="collections_bookmark" />
             </q-item-section>
-            <q-item-section> Materiales de Formación </q-item-section>
+            <q-item-section>Materiales de Formación</q-item-section>
           </q-item>
 
           <q-separator />
+
           <q-item clickable v-ripple @click="cerrar()">
             <q-item-section avatar>
-              <q-icon name="login" />
+              <q-icon name="logout" />
             </q-item-section>
-            <q-item-section> Salir </q-item-section>
+            <q-item-section>Salir</q-item-section>
           </q-item>
 
         </q-list>
@@ -367,7 +364,7 @@ const colors = ref('');
 const useLogin = useLoginStore()
 let drawerRight = ref(false)
 const leftDrawerOpen = ref(false);
-const router = useRouter(); 
+const router = useRouter();
 const windowWidth = ref(window.innerWidth);
 
 async function getcolor() {
