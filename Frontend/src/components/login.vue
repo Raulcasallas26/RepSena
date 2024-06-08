@@ -320,7 +320,6 @@ const images = [
     'https://agenciapublicadeempleo.sena.edu.co/imgLayout/Boletines%20de%20prensa/Instructor%20SENA-min%20(1).jpg',
     'https://www.portafolio.co/files/article_multimedia/uploads/2019/03/13/5c89a35b58374.jpeg',
     'https://www.culturarecreacionydeporte.gov.co/sites/default/files/styles/1300/public/noticias/imagen/2023-04/sena-scrd_001.jpg?itok=KUwK_eI7',
-    // Agrega más URLs de imágenes aquí
 ];
 const currentImageIndex = ref(0);
 const currentImage = ref(null);

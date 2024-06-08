@@ -2,11 +2,11 @@
   <q-layout view="hHh LpR lff">
     <q-header elevated class="text-white interFaz" id="header" :style="{ 'background-color': colors }">
       <q-toolbar>
-        <q-avatar v-if="useLogin.inicio === false">
-          <img src="../src/img/logo_sena.png" v-if="useLogin.inicio === false" style="filter: invert(1);" alt="">
+        <q-avatar v-if="useLogin.inicio === false || bd === false && notMobile">
+          <img src="../src/img/logo_sena.png"  style="filter: invert(1);" alt="">
         </q-avatar>
         <div v-else>
-          <q-btn-dropdown flat round dense v-if="!isInLoginComponent && isMobile && useLogin.inicio === true" icon="menu"
+          <q-btn-dropdown flat round dense v-if=" isMobile   " icon="menu"
             :class="{ 'justify-left': bd === false && isMobile }" style="float: left;">
 
             <q-list padding>
@@ -328,7 +328,7 @@
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple
-            to="/materialesforma">
+            to="">
             <q-item-section avatar>
               <q-icon :src="materiales" />
             </q-item-section>
@@ -357,7 +357,6 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLoginStore } from './stores/login.js';
 import { useconfiguracionStore } from "./stores/configuracion.js"
-import materiales from "./img/materiales.png"
 let Storecolor = useconfiguracionStore();
 let drawer = ref(false)
 let miniState = ref(true)
@@ -408,7 +407,13 @@ function cerrar() {
 
 // Calcula si el ancho de la ventana es menor a 300px (para mostrar u ocultar el menú lateral)
 const isMobile = computed(() => {
+  nota.value = true
   return windowWidth.value < 600;
+});
+
+const notMobile = computed(() => {
+  nota.value = false
+  return windowWidth.value > 600;
 });
 
 // Agrega un listener para detectar cambios en el ancho de la ventana
