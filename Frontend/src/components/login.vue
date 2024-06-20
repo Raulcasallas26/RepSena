@@ -22,9 +22,9 @@
                                 </p> -->
                                 <div role="alert"
                                     style="border: 2px solid red; border-radius: 20px; text-align: center; background-color: rgba(255, 0, 0, 0.304);"
-                                    v-if="check !== ''">
+                                    v-if="checking !== ''">
                                     <div>
-                                        {{ check }}
+                                        {{ checking }}
                                     </div>
                                 </div>
                                 <div class="q-gutter-md">
@@ -44,8 +44,8 @@
                             <div style="display: flex;  justify-content: center;">
                                 <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
                                 <q-btn v-else
-                                    style="background-color: green;display: flex; justify-content: center; color: white;" @keyup.enter="validar()" 
-                                    @click="validar()">
+                                    style="background-color: green;display: flex; justify-content: center; color: white;"
+                                    @keyup.enter="validar()" @click="validar()">
                                     Iniciar</q-btn>
                             </div>
                             <q-card-section>
@@ -165,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useLoginStore } from '../stores/login.js';
 import { useRouter } from "vue-router";
 const useLogin = useLoginStore();
@@ -181,9 +181,10 @@ let subject = ref("prueva de que envie el correo")
 let body = ref("Si se envio el correo con exito y llega al usuario")
 let net = ref('')
 let r = ref("")
+let check = ref('')
 let cedula = ref("");
 let password = ref("");
-let check = ref("");
+let checking = ref("");
 let resp = ref("");
 let verdadero = ref("");
 let falso = ref("");
@@ -208,12 +209,6 @@ function limpiar() {
     email.value = ""
 }
 
-onMounted(() => {
-
-});
-
-
-
 function olvideContra() {
     ingresaCorreo.value = true;
 }
@@ -232,13 +227,20 @@ function validarCorreo() {
 
 }
 
+function limpiarEstado() {
+    check.value = '';
+}
+
 async function comprovar() {
     try {
         loading.value = true
         const res = await useLogin.reset(email.value, subject.value, body.value)
         resp = res.status
         if (resp == 200) {
-            router.push("/home");
+            watch(check, () => {
+                limpiarEstado();
+            });
+            router.replace('/home'); // Redirige al usuario a la página '/home'
             verdadero.value = Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -254,7 +256,6 @@ async function comprovar() {
     loading.value = false
     compruevaCorreo.value = false
     return true
-
 }
 
 function guardar() {
@@ -264,11 +265,11 @@ function guardar() {
 function validar() {
     console.log("estoy en validar");
     if (cedula.value.trim() == "") {
-        check.value = "Inserta tus datos en los campos"
+        checking.value = "Inserta tus datos en los campos"
     } else if (password.value.trim() == "") {
-        check.value = "Inserta tus datos en los campos"
+        checking.value = "Inserta tus datos en los campos"
     } else {
-        check.value = ""
+        checking.value = ""
         /* Read more about handling dismissals below */
 
         if (Login() == true && resp == 200) {
@@ -300,7 +301,7 @@ async function Login() {
             })
         } else {
             console.log("esty en la parte negativa");
-            check.value = "Error al iniciar sesion"
+            checking.value = "Error al iniciar sesion"
 
         }
     } catch (error) {
@@ -357,13 +358,18 @@ onMounted(() => {
 }
 
 #col7 {
-    position: relative; /* Necesario para posicionar el pseudo-elemento */
+    position: relative;
+    /* Necesario para posicionar el pseudo-elemento */
     width: 100%;
     height: 100vh;
-    display: flex; /* Opcional: Usar flexbox para alinear contenido */
-    align-items: center; /* Opcional: Centrar contenido verticalmente */
-    justify-content: center; /* Opcional: Centrar contenido horizontalmente */
-    overflow: hidden; /* Asegura que el pseudo-elemento no se salga del contenedor */
+    display: flex;
+    /* Opcional: Usar flexbox para alinear contenido */
+    align-items: center;
+    /* Opcional: Centrar contenido verticalmente */
+    justify-content: center;
+    /* Opcional: Centrar contenido horizontalmente */
+    overflow: hidden;
+    /* Asegura que el pseudo-elemento no se salga del contenedor */
 }
 
 #col7::before {
@@ -374,15 +380,21 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     background-image: url("../img/logo_sena.png");
-    background-size: cover; /* Ajusta la imagen para cubrir el área del contenedor */
-    background-position: center; /* Centra la imagen en el contenedor */
-    background-repeat: no-repeat; /* Evita que la imagen se repita */
-    opacity: 0.1; /* Ajusta la opacidad de la imagen */
-    z-index: 1; /* Coloca el pseudo-elemento detrás del contenido */
+    background-size: cover;
+    /* Ajusta la imagen para cubrir el área del contenedor */
+    background-position: center;
+    /* Centra la imagen en el contenedor */
+    background-repeat: no-repeat;
+    /* Evita que la imagen se repita */
+    opacity: 0.1;
+    /* Ajusta la opacidad de la imagen */
+    z-index: 1;
+    /* Coloca el pseudo-elemento detrás del contenido */
 }
 
-#col7 > * {
-    position: relative; /* Asegura que el contenido se muestre encima del pseudo-elemento */
+#col7>* {
+    position: relative;
+    /* Asegura que el contenido se muestre encima del pseudo-elemento */
     z-index: 2;
 }
 
@@ -408,7 +420,7 @@ onMounted(() => {
     /* Necesario para el pseudo-elemento */
     transition: box-shadow 0.3s;
     /* Transición suave para el resaltado */
-}   
+}
 
 #card:hover {
     color: #070707;

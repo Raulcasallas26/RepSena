@@ -1,10 +1,10 @@
-<template >
+<template>
     <div class="q-pa-md">
         <div v-if="load == true">
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else>
-            <q-table flat bordered title="Treats" :rows="user" :columns="columns" row-key="id" :filter="filter"
+            <q-table flat bordered title="Treats" :rows="filteredUsers" :columns="columns" row-key="id" :filter="filter"
                 :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="10"
                 :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]">
                 <template v-slot:top>
@@ -15,10 +15,11 @@
                     <q-input borderless dense debounce="300" color="primary" v-model="filter"
                         style="border-radius: 10px; border: grey solid 0.5px; padding: 5px">
                         <template v-slot:append>
-                            <q-icon name="seach" />
+                            <q-icon name="search" />
                         </template>
                     </q-input>
                 </template>
+
                 <template v-slot:body-cell-perfil="props">
                     <q-td :props="props">
                         <q-avatar @click="detalles(props)">
@@ -26,12 +27,14 @@
                         </q-avatar>
                     </q-td>
                 </template>
+
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
                         <span class="text-green" v-if="props.row.estado == true">Activo</span>
                         <span class="text-red" v-else>Inactivo</span>
                     </q-td>
                 </template>
+
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
                         <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
@@ -61,52 +64,57 @@
                     <q-card flat bordered class="my-card">
                         <q-card-section class="q-pa-md">
                             <div class="q-gutter-md">
-                                <q-input v-model="nombre" label="Nombre" :rules="[(val) => !!val || 'Campo requerido']" />
+                                <q-input v-model="nombre" label="Nombre"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
                                 <q-input v-model="apellidos" label="Apellido"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
-                                    :rules="[validarEmail]">
-                                    <template v-slot:append>
-                                        <q-icon name="mail" />
-                                    </template>
-                                </q-input>
+                                <q-input v-model.number="cedula" type="number" label="Cedula"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
                                 <q-input v-model.number="telefono" type="number" label="Telefono"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
-                                    :options="opciones" label="Selecciona un Rol" />
-                            </div>
-                            <div class="q-gutter-md"> 
-                                <input type="file" @change="subir_curriculum" class="custom-file-input">
-                            </div>
-                            <div class="q-gutter-md">
-                                <q-input v-model.number="cedula" type="number" label="Cedula"
-                                    :rules="[(val) => !!val || 'Campo requerido']" />
-                            </div>
-                            <div class="q-gutter-md" v-if="bd === true">
-                                <q-input v-model="perfilProfesional" label="Perfil Profecional"
-                                    :rules="[(val) => !!val || 'Campo requerido']" />
-                            </div>
+                                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
+                                    :rules="[validarEmail]">
 
-                            <div class="q-gutter-md" v-if="bd === true">
-                                <q-input v-model="RedConocimiento" label="Ret de Conocimiento"
-                                    :rules="[(val) => !!val || 'Campo requerido']" />
+                                    <template v-slot:append>
+                                        <q-icon name="mail" />
+                                    </template>
+                                </q-input>
                             </div>
                             <div class="q-gutter-md" v-if="bd !== true">
-                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'" label="Ingresar password"
-                                    :rules="[(val) => !!val || 'Campo requerido']">
+                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'"
+                                    label="Ingresar password" :rules="[(val) => !!val || 'Campo requerido']">
+
                                     <template v-slot:append>
                                         <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                             @click="isPwd = !isPwd" />
                                     </template>
                                 </q-input>
+                            </div>
+                            <div class="q-gutter-md" v-if="bd === true">
+                                <q-input v-model="perfilProfesional" label="Perfil Profecional"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
+                            </div>
+                            <div class="q-gutter-md">
+                                <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
+                                    :options="opciones" label="Selecciona un Rol" @update:model-value="instru" />
+                            </div>
+                            <div class="q-gutter-md" v-if="instructor === true || r.RolUsuario === 'Instructor'">
+                                <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']"
+                                    :options="RedCon" label="Red de conocimineto" />
+                            </div>
+                            <div class="q-gutter-md custom-file-container">
+                                <input type="file" @change="subir_curriculum" class="custom-file-input">
+                                <label for="file-upload" class="custom-file-label">
+                                    <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
+                                </label>
                             </div>
                             <div></div>
                         </q-card-section>
@@ -137,7 +145,7 @@
                     <q-card-section>
                         <div class="text-h4">Detalles de {{ nombre }}</div>
                     </q-card-section>
-                    <div style="margin-left: auto;    margin-bottom: auto;">
+                    <div style="margin-left: auto; margin-bottom: auto;">
                         <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
                     </div>
                 </div>
@@ -153,8 +161,12 @@
                             <p><strong style="font-size:large; ">Telefono:</strong> {{ r.telefono }}</p>
                             <p><strong style="font-size:large; ">Curriculum:</strong> <a :href="r.curriculum"
                                     target="_blank">Curriculum</a> </p>
-                            <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}</p>
-                            <p><strong style="font-size:large; ">Red de Conocimiento:</strong> {{ r.RedConocimiento }}</p>
+                            <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}
+                            </p>
+                            <p v-if="r.RolUsuario === 'Instructor'"><strong style="font-size:large; ">Red de
+                                    Conocimiento:</strong>
+                                {{ r.RedConocimiento }}
+                            </p>
                         </q-card-section>
                         <q-card-section>
                         </q-card-section>
@@ -167,13 +179,16 @@
         </q-dialog>
     </div>
 </template>
+
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import { Notify } from "quasar"
+import { useRedesConocimientoStore } from "../stores/RedesConocimiento.js";
 import { useUsuariosStore } from "../stores/usuarios.js";
 import { useLoginStore } from "../stores/login.js"
 import { useRolesUsuariosStore } from "../stores/RolesUsuarios.js";
 import { load } from "../routes/direccion.js"
+const useRedCon = useRedesConocimientoStore();
 const useUsuario = useUsuariosStore();
 const useRoles = useRolesUsuariosStore()
 const useLogin = useLoginStore()
@@ -184,6 +199,7 @@ let check = ref("");
 let isPwd = ref(true);
 let user = ref([]);
 let Rol = ref([])
+let Red = ref([])
 let nombre = ref("");
 let apellidos = ref("");
 let email = ref("");
@@ -191,13 +207,36 @@ let telefono = ref("");
 let cedula = ref("");
 let password = ref("");
 let perfilProfesional = ref("");
+let nombreArchivo = ref("");
 let curriculum = ref(null);
 let RolUsuario = ref("");
 let RedConocimiento = ref("");
 let loading = ref(false);
 let indice = ref(null);
-let r = ref("");
+let verIn = ref()
+let instructor = ref(false)
+let r = ref({ value: { estado: true } });
 let opciones = ref([])
+let RedCon = ref([])
+
+
+const filteredUsers = computed(() => {
+    if (useLogin.rol == "Administrador") {
+        return user.value.filter(u => u.estado === true);
+    } else {
+        return user.value;
+    }
+});
+
+let columns = [
+    { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
+    { name: "nombre", align: "center", label: "Nombre", field: "nombre" },
+    { name: "apellido", align: "center", label: "Apellido", field: "apellidos" },
+    { name: "rolUsuario", align: "center", label: "Rol", field: "RolUsuario" },
+    { name: "email", label: "E-mail", align: "center", field: "email" },
+    { name: "estado", label: "Estado", align: "center", field: "estado" },
+    { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+];
 
 const emailValido = ref(true); // Inicialmente se asume que el correo es válido
 
@@ -215,23 +254,17 @@ const validarEmail = (val) => {
     }
 };
 
-function subir_curriculum(event) {
-    curriculum.value = event.target.files[0]
-    console.log(curriculum.value);
-}
-// pinta la tabla principal
-let columns = [
-    { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
-    { name: "nombre", align: "center", label: "Nombre", field: "nombre" },
-    { name: "apellido", align: "center", label: "Apellido", field: "apellidos" },
-    { name: "rolUsuario", align: "center", label: "Rol", field: "RolUsuario" },
-    { name: "email", label: "E-mail", align: "center", field: "email" },
-    { name: "estado", label: "Estado", align: "center", field: "estado" },
-    { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
-];
+const subir_curriculum = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        nombreArchivo.value = file.name;
+        curriculum.value = file;
+    } else {
+        nombreArchivo.value = '';
+        curriculum.value = null;
+    }
+};
 
-
-// const originalRows = [];
 const filter = ref("");
 
 async function listarUsuarios() {
@@ -251,8 +284,39 @@ async function listarRoles() {
         value: item.denominacion,
         label: item.denominacion,
     }))
+    verIn.value = opciones.value
     load.value = false
 }
+
+async function listaRedCon() {
+    load.value = true
+    let Redc = await useRedCon.getRedesConocimiento(useLogin.token);
+    console.log(Redc);
+    Red.value = Redc.data.RedesConocimiento;
+    RedCon.value = Red.value.map(item => ({
+        value: item.denominacion,
+        label: item.denominacion,
+    }))
+    console.log(RedCon.value);
+    load.value = false
+}
+
+console.log(RedCon);
+
+async function instru() {
+    if (RolUsuario.value.value == "Instructor") {
+        console.log(RolUsuario.value);
+        console.log("entre a instructor");
+        instructor.value = true;
+        return true;
+    } else {
+        console.log("entre a otro usuario");
+        console.log(RolUsuario.value);
+        instructor.value = false;
+        return false;
+    }
+};
+
 
 function mostrarAlerta(mensaje) {
     alert.value = true;
@@ -289,12 +353,14 @@ async function guardar() {
         const response = await useUsuario.addUsuarios({
             nombre: nombre.value,
             apellidos: apellidos.value,
-            email: email.value,
             cedula: cedula.value,
-            curriculum: curriculum.value,
             telefono: telefono.value,
-            RolUsuario: RolUsuario.value.value,
+            email: email.value,
             password: password.value,
+            perfilProfesional: perfilProfesional.value,
+            curriculum: curriculum.value,
+            RolUsuario: RolUsuario.value.value,
+            RedConocimiento: RedConocimiento.value.value,
         });
         console.log(response.status);
         if (response.status == 201) {
@@ -328,12 +394,12 @@ async function validaredit() {
         mostrarAlerta("El Teléfono es obligatorio");
     } else if (!RolUsuario.value) {
         mostrarAlerta("Rol del usrario es obligatorio");
+    } else if (!curriculum.value) {
+        mostrarAlerta("El curriculum es obligatorio");
     } else if (!cedula.value) {
         mostrarAlerta("La Cédula es obligatoria");
     } else if (!perfilProfesional.value) {
         mostrarAlerta("El perfil profecional del usuario es obligatorio")
-    } else if (!curriculum.value) {
-        mostrarAlerta("El curriculum es obligatorio");
     } else if (!RedConocimiento.value) {
         mostrarAlerta("La Red de conocimineto es obligatorio");
     } else {
@@ -393,6 +459,10 @@ async function editarUser() {
 
         if (RolUsuario.value && RolUsuario.value.value) {
             UsuarioData.RolUsuario = RolUsuario.value.value
+        }
+
+        if (RedConocimiento.value && RedConocimiento.value.value) {
+            UsuarioData.RedConocimiento = RedConocimiento.value.value
         }
 
 
@@ -468,7 +538,9 @@ function limpiarFormulario() {
     curriculum.value = "";
     password.value = "";
     RolUsuario.value = "";
+    RedConocimiento.value = "";
     bd.value = false;
+    instructor.value = false;
     check.value = ""
 }
 
@@ -483,71 +555,58 @@ function agregar() {
 onMounted(() => {
     listarUsuarios();
     listarRoles();
+    listaRedCon();
     limpiarFormulario();
 });
 
-
-const limpiarCampo = ref()
-
-const abrirSelectorDeArchivos = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.style.display = "none";
-    fileInput.addEventListener("change", handleFileSelection);
-    document.body.appendChild(fileInput);
-    fileInput.click();
-};
-
-// Función para manejar la selección de archivos
-const handleFileSelection = (event) => {
-    const selectedFile = event.target.files[0];
-    const selectedFileName = selectedFile ? selectedFile.name : "";
-
-    // Asignar el nombre del archivo al campo curriculum
-    curriculum.value = selectedFileName;
-
-    // Buscar la opción que corresponde al nombre del archivo
-    const selectedOption = opciones.find((option) =>
-        option.includes(selectedFileName)
-    );
-
-    if (selectedOption) {
-        // Enviar el texto correspondiente a la opción seleccionada
-        const textoDeOpcion = selectedOption;
-        // Aquí puedes hacer lo que necesites con textoDeOpcion
-        alert(`Texto de la opción seleccionada: ${textoDeOpcion}`);
-    } else {
-        // Manejar el caso en que no se encuentre una opción correspondiente
-        alert(
-            "No se encontró una opción correspondiente al archivo seleccionado."
-        );
-    }
-
-    event.target.remove(); // Elimina el input de tipo file después de su uso
-};
 </script>
+
 <style scoped>
-/* Estilos para el input personalizado */
+.custom-file-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
 .custom-file-input {
-    border-bottom: 1px solid #afafaf;
-    color: #afafaf;
-    padding: 8px 12px;
+    width: 100%;
+    height: 40px;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.custom-file-label {
+    display: inline-block;
+    padding: 10px 20px;
     font-size: 16px;
-    width: 96%;
-    box-sizing: border-box;
-    outline: none;
+    color: #333;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* Estilos para cuando el input está enfocado */
-.custom-file-input:hover {
-    border-bottom-color: #000000;
-    color: #000000;
-    /* Cambiar el color de borde al estar enfocado */
+.custom-file-label:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
 }
 
-.custom-file-input:focus {
-    color: #000000;
-    /* Cambiar el color de borde al estar enfocado */
+.custom-file-label:active {
+    background-color: #d6d8db;
+    border-color: #c6c8ca;
+}
+
+.custom-file-input:focus+.custom-file-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label span {
+    pointer-events: none;
 }
 
 #card {
@@ -610,4 +669,4 @@ const handleFileSelection = (event) => {
     animation-name: fadeOutX;
     opacity: 0;
 }
-</style> 
+</style>

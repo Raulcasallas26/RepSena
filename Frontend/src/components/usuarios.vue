@@ -103,15 +103,18 @@
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <input type="file" @change="subir_curriculum" class="custom-file-input">
-                            </div>
-                            <div class="q-gutter-md">
                                 <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
                                     :options="opciones" label="Selecciona un Rol" @update:model-value="instru" />
                             </div>
                             <div class="q-gutter-md" v-if="instructor === true || r.RolUsuario === 'Instructor'">
                                 <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']"
                                     :options="RedCon" label="Red de conocimineto" />
+                            </div>
+                            <div class="q-gutter-md custom-file-container">
+                                <input type="file" @change="subir_curriculum" class="custom-file-input">
+                                <label for="file-upload" class="custom-file-label">
+                                    <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
+                                </label>
                             </div>
                             <div></div>
                         </q-card-section>
@@ -160,8 +163,9 @@
                                     target="_blank">Curriculum</a> </p>
                             <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}
                             </p>
-                            <p v-if="r.RolUsuario === 'Instructor'"><strong style="font-size:large; ">Red de Conocimiento:</strong> 
-                            {{r.RedConocimiento }}
+                            <p v-if="r.RolUsuario === 'Instructor'"><strong style="font-size:large; ">Red de
+                                    Conocimiento:</strong>
+                                {{ r.RedConocimiento }}
                             </p>
                         </q-card-section>
                         <q-card-section>
@@ -203,6 +207,7 @@ let telefono = ref("");
 let cedula = ref("");
 let password = ref("");
 let perfilProfesional = ref("");
+let nombreArchivo = ref("");
 let curriculum = ref(null);
 let RolUsuario = ref("");
 let RedConocimiento = ref("");
@@ -249,13 +254,17 @@ const validarEmail = (val) => {
     }
 };
 
-function subir_curriculum(event) {
-    curriculum.value = event.target.files[0]
-    console.log(curriculum.value);
-}
+const subir_curriculum = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        nombreArchivo.value = file.name;
+        curriculum.value = file;
+    } else {
+        nombreArchivo.value = '';
+        curriculum.value = null;
+    }
+};
 
-
-// const originalRows = [];
 const filter = ref("");
 
 async function listarUsuarios() {
@@ -546,73 +555,58 @@ function agregar() {
 onMounted(() => {
     listarUsuarios();
     listarRoles();
-    listaRedCon(); 
+    listaRedCon();
     limpiarFormulario();
 });
 
-
-const limpiarCampo = ref()
-
-const abrirSelectorDeArchivos = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.style.display = "none";
-    fileInput.addEventListener("change", handleFileSelection);
-    document.body.appendChild(fileInput);
-    fileInput.click();
-};
-
-// Función para manejar la selección de archivos
-const handleFileSelection = (event) => {
-    const selectedFile = event.target.files[0];
-    const selectedFileName = selectedFile ? selectedFile.name : "";
-
-    // Asignar el nombre del archivo al campo curriculum
-    curriculum.value = selectedFileName;
-
-    // Buscar la opción que corresponde al nombre del archivo
-    const selectedOption = opciones.find((option) =>
-        option.includes(selectedFileName)
-    );
-
-    if (selectedOption) {
-        // Enviar el texto correspondiente a la opción seleccionada
-        const textoDeOpcion = selectedOption;
-        // Aquí puedes hacer lo que necesites con textoDeOpcion
-        alert(`Texto de la opción seleccionada: ${textoDeOpcion}`);
-    } else {
-        // Manejar el caso en que no se encuentre una opción correspondiente
-        alert(
-            "No se encontró una opción correspondiente al archivo seleccionado."
-        );
-    }
-
-    event.target.remove(); // Elimina el input de tipo file después de su uso
-};
 </script>
 
 <style scoped>
-/* Estilos para el input personalizado */
+.custom-file-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
 .custom-file-input {
-    border-bottom: 1px solid #afafaf;
-    color: #afafaf;
-    padding: 8px 12px;
+    width: 100%;
+    height: 40px;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.custom-file-label {
+    display: inline-block;
+    padding: 10px 20px;
     font-size: 16px;
-    width: 96%;
-    box-sizing: border-box;
-    outline: none;
+    color: #333;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* Estilos para cuando el input está enfocado */
-.custom-file-input:hover {
-    border-bottom-color: #000000;
-    color: #000000;
-    /* Cambiar el color de borde al estar enfocado */
+.custom-file-label:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
 }
 
-.custom-file-input:focus {
-    color: #000000;
-    /* Cambiar el color de borde al estar enfocado */
+.custom-file-label:active {
+    background-color: #d6d8db;
+    border-color: #c6c8ca;
+}
+
+.custom-file-input:focus+.custom-file-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label span {
+    pointer-events: none;
 }
 
 #card {

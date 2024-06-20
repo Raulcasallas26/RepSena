@@ -59,7 +59,7 @@ const httpUsuarios = {
                     const salt = bcrypt.genSaltSync();
                     nuevoUsuario.password = bcrypt.hashSync(req.body.password, salt);
                     const UsuarioCreado = await nuevoUsuario.save();
-                    res.status(201).json(UsuarioCreado);
+                    res.status(201).json({mensaje: "Un usuario insertado!!", UsuarioCreado});
                 }
             }
         } catch (error) {
@@ -81,7 +81,6 @@ const httpUsuarios = {
             const {
                 nombre, apellidos, cedula, telefono, email, password, perfilProfesional, RolUsuario, RedConocimiento
             } = req.body;
-
 
             const buscarCodigo = await UsuariosModel.findOne({ cedula: cedula });
             if (buscarCodigo && buscarCodigo._id.toString() !== id) {

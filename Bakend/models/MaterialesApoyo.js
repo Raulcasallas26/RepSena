@@ -4,7 +4,7 @@ const MaterialesApoyoSchema = new mongoose.Schema({
     codigo: {type: String},
     nombre:{type:String}, 
     documento:{type:String},
-    descripccion:{type:String},
+    descripcion:{type:String},
     documentos:{type:String},
 }) 
 

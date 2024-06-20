@@ -8,23 +8,21 @@ const router = Router()
 
 router.get("/",[validarJWT], httpMaterialesApoyo.getMaterialesApoyo)
 
-router.get("/:id", httpMaterialesApoyo.getMaterialesApoyoId)
-
-router.post("/", [
-  check("codigo","el codigo es un campo obligatorio").notEmpty().trim().isString(),
-  check("nombre", "el nombre es un campo obligatorio").notEmpty().trim().isString(),
-  check("documento", "el docuemnto es un campo obligatorio").notEmpty().trim().isString(),
-  check("descripccion","la descripcion es un campo obligatorio").notEmpty().trim().isString(),
-  check("documentos","los documentos es un campo obligatorio").notEmpty().trim().isString(),
+router.post("/", [ 
+  check("codigo","El codigo es un campo obligatorio").notEmpty().trim().isString(),
+  check("nombre", "El nombre es un campo obligatorio").notEmpty().trim().isString(),
+  check("documento", "El docuemnto es un campo obligatorio").notEmpty().trim().isString(),
+  check("descripcion","La descripcion es un campo obligatorio").notEmpty().trim().isString(),
+  check("documentos").optional(),
   validarResultados
 ], httpMaterialesApoyo.postMaterialesApoyo)
 
 router.put("/:id",[
-  check("codigo","el codigo es un campo obligatorio").notEmpty().trim().isString(),
-  check("nombre", "el nombre es un campo obligatorio").notEmpty().trim().isString(),
-  check("documento", "el docuemnto es un campo obligatorio").notEmpty().trim().isString(),
-  check("descripccion","la descripcion es un campo obligatorio").notEmpty().trim().isString(),
-  check("documentos","los documentos es un campo obligatorio").notEmpty().trim().isString(),
+  check("codigo","El codigo es un campo obligatorio").notEmpty().trim().isString(),
+  check("nombre", "El nombre es un campo obligatorio").notEmpty().trim().isString(),
+  check("documento", "El docuemnto es un campo obligatorio").notEmpty().trim().isString(),
+  check("descripcion","La descripcion es un campo obligatorio").notEmpty().trim().isString(),
+  check("documentos").optional(),
   validarResultados
 ], httpMaterialesApoyo.putMaterialesApoyo)
 
