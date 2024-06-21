@@ -7,7 +7,7 @@ const httpRetroAlimentacionRed = {
             res.json({ RetroAlimentacionRed });
         } catch (error) {
             res.status(500).json({ mensaje: "Error al obtener la red", error });
-        }
+        }    
     },
 
     getRetroAlimentacionRedId: async (req, res) => {

@@ -69,7 +69,7 @@
         <q-dialog v-model="alert" persistent>
             <q-spinner-dots v-if="loading == true" color="green" size="20em" :thickness="100" />
                 <q-card v-else id="card">
-                    <div style="display: flex">
+                    <div style="display: flex">  
                         <q-card-section>
                             <div class="text-h4">Registro de instrumento</div>
                         </q-card-section>
