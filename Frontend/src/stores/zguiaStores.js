@@ -84,6 +84,7 @@ export const useUsuariosStore = defineStore(
                 return error
             }
         }
+        
         const activarUsuarios = async (id) => {
             try {
                 let res = await axios.put(`${urlBackend}/Usuarios/estado/${id}`)

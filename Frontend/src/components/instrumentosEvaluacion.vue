@@ -1,13 +1,16 @@
 <template>
     <div class="card-container">
-        <div v-if="load == true" style="margin-top: 5px;">
+        <div v-if="load == true" style="margin-top: 5px">
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else class="body">
-            <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar" @click="agregar()" />
-            <div style="margin-left: 5%;" class="text-h4">Instrumentos de Evaluacion</div>
+            <q-btn style="background-color: green; color: white" :disable="loading === true" label="Agregar"
+                @click="alert = true" />
+            <div style="margin-left: 5%" class="text-h4">
+                Instrumentos de Evaluacion
+            </div>
             <q-space />
-            <q-input borderless dense debounce="300" style="border-radius: 10px; border:grey solid 0.5px; padding: 5px;"
+            <q-input borderless dense debounce="300" style="border-radius: 10px; border: grey solid 0.5px; padding: 5px"
                 color="primary">
                 <template v-slot:append>
                     <q-icon name="search" />
@@ -17,9 +20,11 @@
         <div>
             <div v-for="(instrumento, index) in Instrumentos" :key="index">
                 <div class="card">
-                    <div class="top-half" style="display: flex;">
-                        <div class="info" @click="toggleDetails(index)">
+                    <div class="top-half" style="display: flex">
+                        <div class="info">
                             <p><strong>Nombre:</strong> {{ instrumento.nombre }}</p>
+                            <p><strong>Documentos:</strong><a :href="instrumento.documento"
+                                    target="_blank">Documento</a> </p>
                             <strong>Estado: </strong>
                             <span class="text-green" v-if="instrumento.estado === true">
                                 Activo</span>
@@ -27,26 +32,25 @@
                         </div>
                         <div>
                             <div class="q-pa-md">
-                                <q-btn-dropdown style="background-color: rgba(255, 255, 255, 0); border: none;"
-                                    icon="more_vert">
+                                <q-btn-dropdown id="botonDesplegable"
+                                    style="background-color: rgba(255, 255, 255, 0); border: none" icon="more_vert">
                                     <q-list>
-                                        <q-item v-close-popup >
-                                            <q-item-section>
-                                                    <q-btn icon="edit" @click="edito(index)" id="boton-estado" color="black" outline>
-                                                </q-btn>
-                                            </q-item-section>
-                                        </q-item>
-
                                         <q-item v-close-popup>
                                             <q-item-section>
-                                                    <q-btn icon="download" id="boton-estado" color="primary" outline>
+                                                <q-btn icon="edit" @click="edito(index)" id="botonDesplegable"
+                                                    color="black" outline>
                                                 </q-btn>
                                             </q-item-section>
                                         </q-item>
-
-                                        <q-item v-close-popup >
+                                        <q-item v-close-popup>
+                                            <q-item-section>
+                                                <q-btn icon="download" id="botonDesplegable" color="primary" outline>
+                                                </q-btn>
+                                            </q-item-section>
+                                        </q-item>
+                                        <q-item v-close-popup>
                                             <div style="display: flex; justify-content: flex-end">
-                                                <q-btn id="boton-estado" class="q-pa-r" color="green" outline
+                                                <q-btn id="botonDesplegable" class="q-pa-r" color="green" outline
                                                     @click="activar(instrumento)" v-if="instrumento.estado === false">✅
                                                 </q-btn>
                                                 <q-btn class="q-pa-r" color="red" outline @click="activar(instrumento)"
@@ -58,20 +62,18 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        <div>
-            <q-dialog v-model="alert" persistent>
-            <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
+        <q-dialog v-model="alert" persistent>
+            <q-spinner-dots v-if="loading == true" color="green" size="20em" :thickness="100" />
                 <q-card v-else id="card">
-                    <div style="display: flex;">
+                    <div style="display: flex">
                         <q-card-section>
                             <div class="text-h4">Registro de instrumento</div>
                         </q-card-section>
-                        <div style="margin-left: auto;    margin-bottom: auto;">
+                        <div style="margin-left: auto; margin-bottom: auto">
                             <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" />
                         </div>
                     </div>
@@ -83,21 +85,17 @@
                                         :rules="[(val) => !!val || 'Campo requerido']" />
                                 </div>
                                 <div class="q-gutter-md">
-                                    <q-input class="input" v-model="documento"
-                                        label="Archivo o enlace del diseño curricular"
-                                        :rules="[(val) => !!val || 'Campo requerido']" dense clearable
-                                        prepend-icon="attach_file" @clear="limpiarCampo">
-                                        <template v-slot:append>
-                                            <q-icon name="attach_file" style="cursor: pointer"
-                                                @click="abrirSelectorDeArchivos" />
-                                        </template>
-                                    </q-input>
+                                    <div class="q-gutter-md custom-file-container">
+                                        <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
+                                        <label for="file-upload" class="custom-file-label">
+                                            <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </q-card-section>
                             <q-card-section>
-                                <div role="alert"
-                                    style=" border: 2px solid red; border-radius: 20px; text-align: center; background-color: rgba(255, 0, 0, 0.304);"
-                                    v-if="check !== ''">
+                                <div role="alert" style=" border: 2px solid red; border-radius: 20px; text-align: center;
+                                background-color: rgba(255, 0, 0, 0.304); " v-if="check !== ''">
                                     <div>
                                         {{ check }}
                                     </div>
@@ -107,158 +105,189 @@
                     </q-card-section>
 
                     <q-card-actions align="right">
-                        <q-btn flat label="Cerrar" @click="limpiarFormulario(), cerrar()" color="primary" v-close-popup />
-                        <q-btn flat label="Guardar" v-if="bd === false" @click="guardar()" color="primary" />
-                        <q-btn flat label="Editar Proyecto" v-else @click="editar()" color="primary" />
+                        <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
+                        <q-btn flat label="Guardar" v-if="bd === false" @click="validarCampos()" color="primary" />
+                        <q-btn flat label="Editar Proyecto" v-else @click="validarCampos()" color="primary" />
                     </q-card-actions>
                 </q-card>
-            </q-dialog>
-        </div>
+
+        </q-dialog>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { Notify } from "quasar"
 import { useInstrumentosEvaluacionStore } from "../stores/InstrumentosEvaluacion";
-import {useLoginStore} from "../stores/login.js"
-import { load } from "../routes/direccion.js"
+import { useLoginStore } from "../stores/login.js";
+import { load } from "../routes/direccion.js";
+import { QSpinnerIos } from 'quasar';
 const useInstrumentos = useInstrumentosEvaluacionStore();
-const useLogin = useLoginStore()
-const loading = ref(false);
+const useLogin = useLoginStore();
 let Instrumentos = ref([]);
+let nombreArchivo = ref("")
 let alert = ref(false);
-let check = ref("")
+let check = ref("");
 let indice = ref(null);
-let bd = ref(false)
+let bd = ref(false);
+let r = ref("")
 let nombre = ref("");
-let documento = ref("")
+let documento = ref("");
+const loading = ref(false);
 
 async function listarInstrumentos() {
-    load.value = true
+    load.value = true;
     console.log(useLogin.token);
-    let InstrumentosEvaluacion = await useInstrumentos.getInstrumentosEvalacion(useLogin.token);
+    let InstrumentosEvaluacion = await useInstrumentos.getInstrumentosEvalacion(
+        useLogin.token);
     console.log(InstrumentosEvaluacion);
     Instrumentos.value = InstrumentosEvaluacion.data.InstrumentosEvaluacion;
-    load.value = false
+    load.value = false;
+}
+
+async function validarCampos() {
+    console.log(bd.value);
+    if (nombre.value.trim() === "") {
+        mostrarAlerta("El Nombre es obligatorio");
+    } else if (documento.value === null) {
+        mostrarAlerta("Es obligatorio que suba un documento");
+    } else if (nombreArchivo.value.trim() === "") {
+        mostrarAlerta("Es obligatorio que suba un documento");
+    } else {
+        alert.value = false;
+        if (bd.value == false) {
+            guardar();
+        } else {
+            editar();
+        }
+    }
+}
+
+function mostrarAlerta(mensaje) {
+    alert.value = true;
+    check.value = mensaje;
 }
 
 async function guardar() {
+    console.log("Estoy guardando");
     loading.value = true;
-    let r = await useInstrumentos.addInstrumentosEvaluacion({
-        nombre: nombre.value,
-        documento: documento.value,
-    });
-    console.log(r);
-    loading.value = false
-    alert.value = false
-    listarInstrumentos();
-    limpiarFormulario()
+    try {
+        let r = await useInstrumentos.addInstrumentosEvaluacion({
+            nombre: nombre.value,
+            documento: documento.value,
+        });
+        console.log(r.status);
+        if (r.status == 201) {
+            console.log("Se guardó un nuevo Material de apoyo");
+            alert.value = false;
+            listarInstrumentos();
+            limpiarFormulario();
+        } else {
+            console.error("Error al guardar el Material de apoyo");
+            // Puedes mostrar un mensaje de error aquí si es necesario
+        }
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        // Puedes manejar errores de red u otros errores aquí si es necesario
+    } finally {
+        loading.value = false;
+    }
 }
 
-function limpiarFormulario() {
-    nombre.value = ""
-    documento.value = ""
-    alert.value = false
-    bd.value = false
-}
+const urlDoc = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        nombreArchivo.value = file.name;
+        documento.value = file;
+    } else {
+        nombreArchivo.value = '';
+        documento.value = null;
+    }
+};
 
 const edito = (index) => {
     let r = Instrumentos.value[index];
-    bd.value = true
+    bd.value = true;
     indice.value = r._id;
     alert.value = true;
     nombre.value = r.nombre;
     documento.value = r.documento;
 };
 
-const editar = async () => {
-    loading.value = true
-    let r = await useInstrumentos.editInstrumentosEvaluacion(indice.value, {
-        nombre: nombre.value,
-        documento: documento.value,
-    });
-    console.log(r);
-    bd.value = false
-    loading.value = false
-    listarInstrumentos()
-    limpiarFormulario()
-};
+async function editar() {
+    loading.value = true;
+    try {
+        console.log("hola estoy editando");
+        let Instrumento = {
+            nombre: nombre.value,
+            documento: documento.value,
+        }
+
+        let r = await useInstrumentos.editInstrumentosEvaluacion(
+            indice.value,
+            Instrumento.nombre,
+            Instrumento.documento,
+        );
+        console.log(r);
+        console.log(r.status, r);
+        if (r.status === 201) {
+            console.log(r);
+            console.log("Se edito el usuario con exito");
+            listarInstrumentos();
+            limpiarFormulario();
+            alert.value = false; // Cierra la alerta
+        } else {
+            console.error("Error al editar el usuario");
+            // Puedes mostrar un mensaje de error aquí si es necesario
+        }
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        console.log(error);
+        // Puedes manejar errores de red u otros errores aquí si es necesario
+    } finally {
+        loading.value = false;
+    }
+}
+
+function limpiarFormulario() {
+    nombre.value = "";
+    documento.value = "";
+    alert.value = false;
+    bd.value = false;
+}
+
 
 async function activar(instrimentos) {
-    console.log(instrimentos.estado);
-    let r = instrimentos;
-    if (r.estado === true) {
-        r.estado = false;
-        console.log(r.estado, "resultado del if");
+    r.value = instrimentos;
+    if (r.value.estado === true) {
+        r.value.estado = false;
+        console.log(r.value.estado, "resultado del if condicion");
+        Notify.create({
+            color: "negative",
+            message: "El Instrumento de evaluacion fue Desactivado",
+            icon: "check",
+            position: "top",
+            timeout: 3000
+        })
+        console.log("el estado es inactivo");
     } else {
-        r.estado = true;
-        console.log(r.estado, "resultado del else");
+        r.value.estado = true;
+        console.log(r.value.estado, "resultado del else condicion");
+        Notify.create({
+            color: "positive",
+            message: "El Instrumento de evalueacion fue Activado",
+            icon: "check",
+            position: "top",
+            timeout: 3000
+        })
     }
-    let est = await useInstrumentos.activarInstrumentosEvaluacion(r._id);
+    let est = await useInstrumentos.activarInstrumentosEvaluacion(r.value._id);
     console.log(est);
-}
-
-function cerrar() {
-    bd.value = false;
-    alert.value = false;
-}
-
-listarInstrumentos()
-
-function agregar() {
-    alert.value = true
 }
 
 onMounted(async () => {
     await listarInstrumentos();
 });
-
-const toggleDetails = (index) => {
-    // Cambia el estado de la card en el índice específico
-    cardStates.value[index] = !cardStates.value[index];
-    isRotated.value[index] = !isRotated.value[index];
-};
-
-const limpiarCampo = ref()
-const cardStates = ref({});
-const isRotated = ref({});
-
-const abrirSelectorDeArchivos = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.style.display = "none";
-    fileInput.addEventListener("change", handleFileSelection);
-    document.body.appendChild(fileInput);
-    fileInput.click();
-};
-
-// Función para manejar la selección de archivos
-const handleFileSelection = (event) => {
-    const selectedFile = event.target.files[0];
-    const selectedFileName = selectedFile ? selectedFile.name : "";
-
-    // Asignar el nombre del archivo al campo documento
-    documento.value = selectedFileName;
-
-    // Buscar la opción que corresponde al nombre del archivo
-    const selectedOption = opciones.find((option) =>
-        option.includes(selectedFileName)
-    );
-
-    if (selectedOption) {
-        // Enviar el texto correspondiente a la opción seleccionada
-        const textoDeOpcion = selectedOption;
-        // Aquí puedes hacer lo que necesites con textoDeOpcion
-        alert(`Texto de la opción seleccionada: ${textoDeOpcion}`);
-    } else {
-        // Manejar el caso en que no se encuentre una opción correspondiente
-        alert(
-            "No se encontró una opción correspondiente al archivo seleccionado."
-        );
-    }
-
-    event.target.remove(); // Elimina el input de tipo file después de su uso
-};
 </script>
 
 <style scoped>
@@ -275,14 +304,12 @@ const handleFileSelection = (event) => {
     font-size: 500%;
     color: green;
     margin-top: 2%;
-
 }
 
 .text2 {
     font-size: 400%;
     color: green;
     margin-top: 2%;
-
 }
 
 .agregar {
@@ -329,8 +356,6 @@ const handleFileSelection = (event) => {
 .bottom-half {
     margin-top: 16px;
 }
-
-
 
 .editar {
     margin-left: -45%;
@@ -392,6 +417,26 @@ const handleFileSelection = (event) => {
     }
 }
 
+#botonDesplegable {
+    animation-duration: 0.3s;
+    /* Duración de la animación */
+    animation-timing-function: ease;
+    /* Función de temporización (puedes ajustarla) */
+}
+
+#botonDesplegable {
+    opacity: 0;
+}
+
+#botonDesplegable {
+    opacity: 1;
+}
+
+#botonDesplegable:not(.active):before {
+    animation-name: fadeOutX;
+    opacity: 0;
+}
+
 /* Aplica las transiciones y animaciones */
 .close-button {
     animation-duration: 0.3s;
@@ -415,5 +460,52 @@ const handleFileSelection = (event) => {
 .close-button:not(.active):before {
     animation-name: fadeOutX;
     opacity: 0;
+}
+
+.custom-file-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-file-input {
+    width: 100%;
+    height: 40px;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.custom-file-label {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.custom-file-label:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+}
+
+.custom-file-label:active {
+    background-color: #d6d8db;
+    border-color: #c6c8ca;
+}
+
+.custom-file-input:focus+.custom-file-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label span {
+    pointer-events: none;
 }
 </style>

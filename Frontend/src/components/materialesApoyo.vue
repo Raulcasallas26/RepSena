@@ -108,7 +108,7 @@
         <q-card-actions align="right">
           <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
           <q-btn flat label="Guardar" v-if="bd === false" @click="validarCampos()" color="primary" />
-          <q-btn flat label="Editar Usuario" v-else bd = true @click="validarCampos()" color="primary" />
+          <q-btn flat label="Editar Usuario" v-else bd=true @click="validarCampos()" color="primary" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -156,11 +156,11 @@ async function validarCampos() {
     mostrarAlerta("El Nombre es obligatorio");
   } else if (documentos.value === null) {
     mostrarAlerta("Es obligatorio que suba un documento");
-  } 
-  // else if (descripcion.value.trim() === "") {
-  //   mostrarAlerta("La Descripcion es obligatoria");
-  // } 
-  else {
+  } else if (descripcion.value.trim() === "") {
+    mostrarAlerta("La Descripcion es obligatoria");
+  } else if (nombreArchivo.value.trim() === "") {
+    mostrarAlerta("Es obligatorio que suba un documento");
+  } else {
     alert.value = false;
     if (bd.value == false) {
       guardar();
@@ -286,6 +286,7 @@ function limpiarFormulario() {
   nombreArchivo.value = "";
   modal.value = false
   bd.value = false;
+  check.value = ""
 }
 onMounted(async () => {
   await ListarMaterialApoyo();

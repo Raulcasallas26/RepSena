@@ -1,35 +1,37 @@
-import UsuariosModel from "../models/Usuarios.js"
-import bcrypt from "bcrypt"
+import MaterialesApoyoModel from "../models/MaterialesApoyo.js";
 import url from "url"
 import path from "path"
+import bcrypt from "bcrypt"
 import { v2 as cloudinary } from "cloudinary"
 
-const httpUsuarios = {
-    getUsuarios: async (req, res) => {
+const httpMaterialesApoyo = {
+    getMaterialesApoyo: async (req, res) => {
         try {
-            const Usuarios = await UsuariosModel.find({})
-            res.status(200).json({ Usuarios });
+            const MaterialesApoyo = await MaterialesApoyoModel.find();
+            res.json({ MaterialesApoyo });
         } catch (error) {
-            res.status(500).json({ mensaje: "Error al obtener los Usuarios", error })
+            res
+                .status(500)
+                .json({
+                    mensaje: "Error al obtener infotmacion de material de apoyo",
+                    error,
+                });
         }
     },
 
-    postUsuarios: async (req, res) => {
+    postMaterialesApoyo: async (req, res) => {
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_NAME,
             api_key: process.env.CLOUDINARY_KEY,
             api_secret: process.env.CLOUDINARY_SECRET,
             secure: true,
         });
-
         try {
-            const {
-                nombre, apellidos, cedula, telefono, email, password, perfilProfesional, RolUsuario, RedConocimiento
-            } = req.body;
-            const { curriculum } = req.files;
-            if (curriculum) {
-                const extension = curriculum.name.split(".").pop();
-                const { tempFilePath } = curriculum;
+            const { codigo, nombre, documento, descripcion } = req.body;
+            const { documentos } = req.files;
+            if (documentos) {
+                const extension = documentos.name.split(".").pop();
+                const { tempFilePath } = documentos;
                 const result = await cloudinary.uploader.upload(tempFilePath, {
                     width: 250,
                     crop: "limit",
@@ -37,75 +39,60 @@ const httpUsuarios = {
                     allowedFormats: ["jpg", "png", "docx", "xlsx", "pptx", "pdf"],
                     format: extension,
                 });
-                const buscar = await UsuariosModel.findOne({ cedula: cedula });
+                const buscar = await MaterialesApoyoModel.findOne({ codigo: codigo });
                 if (buscar) {
                     return res.status(404).json({
-                        msg: ` Se encontró un UsuariosModel con el código ${cedula} en esta red`
+                        msg: ` Se encontró un Material de apoyo con el código ${codigo} en esta red`
                     });
                 } else {
-                    const nuevoUsuario = new UsuariosModel({
-                        nombre: nombre,
-                        apellidos: apellidos,
-                        cedula: cedula,
-                        telefono: telefono,
-                        email: email,
-                        password: password,
-                        perfilProfesional: perfilProfesional,
-                        curriculum: result.url,
-                        RolUsuario: RolUsuario,
-                        RedConocimiento: RedConocimiento
+                    const nuevoMaterialesApoyo = new MaterialesApoyoModel({
+                        codigo,
+                        nombre,
+                        documento,
+                        descripcion,
+                        documentos: result.url,
                     });
 
-                    const salt = bcrypt.genSaltSync();
-                    nuevoUsuario.password = bcrypt.hashSync(req.body.password, salt);
-                    const UsuarioCreado = await nuevoUsuario.save();
-                    res.status(201).json(UsuarioCreado);
+                    const MateriarlApoyoCreado = await nuevoMaterialesApoyo.save();
+                    res.status(201).json({ mensaje: "Un material de apoyo insertado!!", MateriarlApoyoCreado });
                 }
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ error: error.message });
+            return res.status(500)
+                .json({ mensaje: "Error al insertar material de apoyo", error: error.message });
         }
     },
 
-    putUsuarios: async (req, res) => {
+    putMaterialesApoyo: async (req, res) => {
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_NAME,
             api_key: process.env.CLOUDINARY_KEY,
             api_secret: process.env.CLOUDINARY_SECRET,
             secure: true,
         });
-
         try {
             const { id } = req.params;
-            const {
-                nombre, apellidos, cedula, telefono, email, password, perfilProfesional, RolUsuario, RedConocimiento
-            } = req.body;
+            const { codigo, nombre, documento, descripcion } = req.body;
 
-
-            const buscarCodigo = await UsuariosModel.findOne({ cedula: cedula });
+            const buscarCodigo = await MaterialesApoyoModel.findOne({ codigo: codigo });
             if (buscarCodigo && buscarCodigo._id.toString() !== id) {
                 return res
                     .status(404)
-                    .json({ msg: "Ya se encuentra un Usuario registrado con ese codigo" });
+                    .json({ msg: "Ya se encuentra un Material de apoyo registrado con ese codigo" });
             };
 
             let updatedData = {
+                codigo: codigo,
                 nombre: nombre,
-                apellidos: apellidos,
-                cedula: cedula,
-                telefono: telefono,
-                email: email,
-                password: password,
-                perfilProfesional: perfilProfesional,
-                RolUsuario: RolUsuario,
-                RedConocimiento: RedConocimiento
+                documento: documento,
+                descripcion: descripcion
             };
 
-            if (req.files && req.files.curriculum) {
-                const curriculum = req.files.curriculum;
-                const extension = curriculum.name.split(".").pop();
-                const { tempFilePath } = curriculum;
+            if (req.files && req.files.documentos) {
+                const documentos = req.files.documentos;
+                const extension = documentos.name.split(".").pop();
+                const { tempFilePath } = documentos;
                 const result = await cloudinary.uploader.upload(tempFilePath, {
                     width: 250,
                     crop: "limit",
@@ -114,84 +101,61 @@ const httpUsuarios = {
                     format: extension,
                 });
 
-                const buscar = await UsuariosModel.findById(id);
+                const buscar = await MaterialesApoyoModel.findById(id);
 
-                if (buscar.curriculum) {
-                    const nombreTemp = buscar.curriculum.split("/");
-                    const nombrecurriculum = nombreTemp[nombreTemp.length - 1];
-                    const [public_id] = nombrecurriculum.split(".");
+                if (buscar.documentos) {
+                    const nombreTemp = buscar.documentos.split("/");
+                    const nombredocumentos = nombreTemp[nombreTemp.length - 1];
+                    const [public_id] = nombredocumentos.split(".");
                     await cloudinary.uploader.destroy(public_id);
                 };
 
-                updatedData.curriculum = result.url;
+                updatedData.documentos = result.url;
             };
 
-
-            const buscarUsuario = await UsuariosModel.findByIdAndUpdate(
+            const buscarMatApoyo = await MaterialesApoyoModel.findByIdAndUpdate(
                 { _id: id },
                 { $set: updatedData },
                 { new: true }
             );
-            res.status(201).json(buscarUsuario);
+            res.status(201).json(buscarMatApoyo);
         } catch (error) {
             console.log(error);
             return res.status(500).json({ error: error.message });
         }
     },
 
-    putUsuariosEstado: async (req, res) => {
-        const { id } = req.params
-        const usu = await UsuariosModel.findById(id)
-        let usuario = null
-        if (usu.estado) {
-            usuario = await UsuariosModel.findByIdAndUpdate(id, { estado: false })
-        } else {
-            usuario = await UsuariosModel.findByIdAndUpdate(id, { estado: true })
+    putMaterialesApoyoEstado: async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const MaterialesApoyo = await MaterialesApoyoModel.findOne({ id });
+
+            if (!MaterialesApoyo) {
+                return res
+                    .status(400)
+                    .json({ mensaje: "Material de apoyo no encontrados" });
+            }
+
+            MaterialesApoyo.estado = !MaterialesApoyo.estado;
+
+            await MaterialesApoyo.save();
+
+            const estadoMensaje = MaterialesApoyo.estado ? "Activo" : "Inactivo";
+
+            res.json({
+                mensaje: `Estado de material de apoyo modificado a  ${estadoMensaje}`,
+                MaterialesApoyo: MaterialesApoyo,
+            });
+        } catch (error) {
+            res
+                .status(500)
+                .json({
+                    mensaje: "Error al cambiar la informacion del material de apoyo",
+                    error,
+                });
         }
-        const usuarioAutenticado = req.usuario
-        res.json({
-            msj: "fue cambiado el estado",
-            usuario,
-            usuarioAutenticado
-        })
     },
-//     const sendEmail = async (email, subject, body) => {
-//         try {
-//             let pass = process.env.FROM_EMAIL_2FA;
-//             const transporter = nodemailer.createTransport({
-//                 host: "smtp.gmail.com",
-//                 port: 465,
-//                 secure: true,
-//                 auth: {
-//                     user: process.env.FROM_EMAIL,
-//                     pass, // naturally, replace both with your real credentials or an application-specific password
-//                 },
-//             });
+};
 
-//             const options = () => {
-//                 return {
-//                     from: "Multichap" < ${ process.env.FROM_EMAIL }> ,
-//                         to: email,
-//                             subject: subject,
-//                                 text: body
-//             };
-//         };
-
-//         // Send email
-//         transporter.sendMail(options(), (error, info) => {
-//             if (error) {
-//                 return error;
-//             } else {
-//                 return res.status(200).json({
-//                     success: true,
-//                 });
-//             }
-//         });
-//     } catch(error) {
-
-//         return error;
-//     }
-// };
-}
-
-export default httpUsuarios
+export default httpMaterialesApoyo;

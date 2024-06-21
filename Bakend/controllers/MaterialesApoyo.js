@@ -113,7 +113,6 @@ const httpMaterialesApoyo = {
         updatedData.documentos = result.url;
       };
 
-
       const buscarMatApoyo = await MaterialesApoyoModel.findByIdAndUpdate(
         { _id: id },
         { $set: updatedData },
