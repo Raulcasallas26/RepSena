@@ -1,9 +1,9 @@
 import {ref} from "vue"
 
-const urlBackend= "http://localhost:3500"
+const urlBackend= "https://repsena.onrender.com"
 
-// local = ""
-// render = "https://repsena.onrender.com"
+// local = "http://localhost:3500"
+// render = ""
 
 let load = ref( false )
 
