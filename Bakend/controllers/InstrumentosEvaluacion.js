@@ -22,7 +22,7 @@ const httpInstrumentosEvaluacion = {
         });
 
         try {
-            const { nombre } = req.body;
+            const { nombre, nomDoc } = req.body;
             const { documento } = req.files;
             if (documento) {
                 const extension = documento.name.split(".").pop();
@@ -41,8 +41,9 @@ const httpInstrumentosEvaluacion = {
                     });
                 } else {
                     const InstrumentosEvaluacion = new InstrumentoEvaluacionModel({
-                        nombre: nombre,
+                        nombre,
                         documento: result.url,
+                        nomDoc,
                     });
 
                     const InstrumentoCreado = await InstrumentosEvaluacion.save();
@@ -65,7 +66,7 @@ const httpInstrumentosEvaluacion = {
         });
         try {
             const { id } = req.params;
-            const { nombre, } = req.body;
+            const { nombre, nomDoc} = req.body;
 
             const buscarnombre = await InstrumentoEvaluacionModel.findOne({ nombre: nombre });
             if (buscarnombre && buscarnombre._id.toString() !== id) {
@@ -76,6 +77,7 @@ const httpInstrumentosEvaluacion = {
 
             let updatedData = {
                 nombre: nombre,
+                nomDoc: nomDoc
             };
 
             if (req.files && req.files.documento) {

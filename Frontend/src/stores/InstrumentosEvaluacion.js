@@ -48,11 +48,12 @@ export const useInstrumentosEvaluacionStore = defineStore(
             }
         }
 
-        const editInstrumentosEvaluacion = async (id, nombre, documento) => {
+        const editInstrumentosEvaluacion = async (id, nombre,  documento, nomDoc) => {
             try {
                 const formData = new FormData();
                 formData.append("nombre", nombre);
                 formData.append("documento", documento);
+                formData.append("nomDoc", nomDoc);
                 let res = await axios.put(`${urlBackend}/InstrumentosEvaluacion/${id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data", },
                 })

@@ -47,7 +47,7 @@ export const useMaterialesApoyoStore = defineStore(
             }
         }
         
-        const editMaterialesApoyo = async (id, codigo, nombre, documento, descripcion, documentos) => {
+        const editMaterialesApoyo = async (id, codigo, nombre, documento, descripcion, documentos, nomDoc) => {
             try {
                 const formData = new FormData();
                 formData.append("codigo", codigo);
@@ -55,6 +55,7 @@ export const useMaterialesApoyoStore = defineStore(
                 formData.append("documento", documento);
                 formData.append("descripcion", descripcion);
                 formData.append("documentos", documentos);
+                formData.append("nomDoc", nomDoc);
                 let res = await axios.put(`${urlBackend}/MaterialesApoyo/${id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data", },
                 })

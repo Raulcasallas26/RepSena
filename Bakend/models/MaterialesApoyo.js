@@ -6,6 +6,7 @@ const MaterialesApoyoSchema = new mongoose.Schema({
     documento:{type:String},
     descripcion:{type:String},
     documentos:{type:String},
+    nomDoc:{type:String},
 }) 
 
 export default mongoose.model("MaterialesApoyo", MaterialesApoyoSchema)

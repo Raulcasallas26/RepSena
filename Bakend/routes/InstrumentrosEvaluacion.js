@@ -13,12 +13,14 @@ router.get("/",[validarJWT], httpInstrumentosEvaluacion.getInstrumentosEvaluacio
 router.post("/", [
   check("nombre", "el nombre es obligatorio",).notEmpty().trim().isString(),
   check("documento").optional(),
+  check("nomDoc").optional(),
   validarResultados
 ], httpInstrumentosEvaluacion.postInstrumentosEvaluacion)
 
 router.put("/:id", [
   check("nombre", "el nombre es obligatorio",).notEmpty().trim().isString(),
   check("documento").optional(),
+  check("nomDoc").optional(),
   validarResultados
 ], httpInstrumentosEvaluacion.putInstrumentosEvaluacion)
 

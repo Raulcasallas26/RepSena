@@ -27,7 +27,7 @@ const httpMaterialesApoyo = {
       secure: true,
     });
     try {
-      const { codigo, nombre, documento, descripcion } = req.body;
+      const { codigo, nombre, documento, descripcion, nomDoc } = req.body;
       const { documentos } = req.files;
       if (documentos) {
         const extension = documentos.name.split(".").pop();
@@ -51,6 +51,7 @@ const httpMaterialesApoyo = {
             documento,
             descripcion,
             documentos: result.url,
+            nomDoc,
           });
 
           const MateriarlApoyoCreado = await nuevoMaterialesApoyo.save();
@@ -73,7 +74,7 @@ const httpMaterialesApoyo = {
     });
     try {
       const { id } = req.params;
-      const { codigo, nombre, documento, descripcion } = req.body;
+      const { codigo, nombre, documento, descripcion, nomDoc } = req.body;
 
       const buscarCodigo = await MaterialesApoyoModel.findOne({ codigo: codigo });
       if (buscarCodigo && buscarCodigo._id.toString() !== id) {
@@ -86,7 +87,8 @@ const httpMaterialesApoyo = {
         codigo: codigo,
         nombre: nombre,
         documento: documento,
-        descripcion: descripcion
+        descripcion: descripcion,
+        nomDoc: nomDoc,
       };
 
       if (req.files && req.files.documentos) {

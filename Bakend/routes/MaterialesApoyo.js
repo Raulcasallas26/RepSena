@@ -14,6 +14,7 @@ router.post("/", [
   check("documento", "El docuemnto es un campo obligatorio").notEmpty().trim().isString(),
   check("descripcion","La descripcion es un campo obligatorio").notEmpty().trim().isString(),
   check("documentos").optional(),
+  check("nomDoc").optional(),
   validarResultados
 ], httpMaterialesApoyo.postMaterialesApoyo)
 
@@ -23,6 +24,7 @@ router.put("/:id",[
   check("documento", "El docuemnto es un campo obligatorio").notEmpty().trim().isString(),
   check("descripcion","La descripcion es un campo obligatorio").notEmpty().trim().isString(),
   check("documentos").optional(),
+  check("nomDoc").optional(),
   validarResultados
 ], httpMaterialesApoyo.putMaterialesApoyo)
 

@@ -45,7 +45,7 @@
                     <p>
                       <strong>Descripción:</strong> {{ MatApoyo.descripcion }}
                     </p>
-                    <p><strong>Documentos:</strong><a :href="MatApoyo.documentos" target="_blank">Documento</a> </p>
+                    <p><strong>Documentos:</strong><a :href="MatApoyo.documentos" target="_blank">{{ MatApoyo.nomDoc }}</a> </p>
                   </div>
                 </div>
               </div>
@@ -88,7 +88,7 @@
                 <div class="q-gutter-md custom-file-container">
                   <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
                   <label for="file-upload" class="custom-file-label">
-                    <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
+                    <span>{{ nombreArchivo || (legaNom || 'Seleccionar archivo') }}</span>
                   </label>
                 </div>
               </div>
@@ -130,6 +130,8 @@ let codigo = ref("");
 let nombre = ref("");
 let filter = ref("");
 let check = ref("");
+let nomDoc = ref("")
+let legaNom = ref("")
 let r = ref("")
 let modal = ref(false)
 let indice = ref(null);
@@ -158,7 +160,7 @@ async function validarCampos() {
     mostrarAlerta("Es obligatorio que suba un documento");
   } else if (descripcion.value.trim() === "") {
     mostrarAlerta("La Descripcion es obligatoria");
-  } else if (nombreArchivo.value.trim() === "") {
+  } else if (nombreArchivo.value.trim() === "" && legaNom.value.trim() === "") {
     mostrarAlerta("Es obligatorio que suba un documento");
   } else {
     alert.value = false;
@@ -179,6 +181,7 @@ async function guardar() {
       documento: documento.value,
       descripcion: descripcion.value,
       documentos: documentos.value,
+      nomDoc: nomDoc.value
     });
     console.log(r.status);
     if (r.status == 201) {
@@ -202,6 +205,7 @@ const urlDoc = (event) => {
   const file = event.target.files[0];
   if (file) {
     nombreArchivo.value = file.name;
+    nomDoc.value = nombreArchivo.value
     documentos.value = file;
     documento.value = file.name.split('.').pop();
   } else {
@@ -221,6 +225,9 @@ function edito(MatApoyo) {
   documento.value = r.value.documento;
   descripcion.value = r.value.descripcion;
   documentos.value = r.value.documentos;
+  nomDoc.value = r.value.nomDoc;
+  legaNom.value = nomDoc.value
+  console.log(legaNom.value);
 }
 
 async function editar() {
@@ -233,6 +240,7 @@ async function editar() {
       documento: documento.value,
       descripcion: descripcion.value,
       documentos: documentos.value,
+      nomDoc: nomDoc.value
     }
 
     let r = await useMaterialApoyo.editMaterialesApoyo(
@@ -242,6 +250,7 @@ async function editar() {
       MaterialApoyo.documento,
       MaterialApoyo.descripcion,
       MaterialApoyo.documentos,
+      MaterialApoyo.nomDoc,
     );
     console.log("se insertaron los datos");
     console.log(r.status, r);
@@ -284,6 +293,8 @@ function limpiarFormulario() {
   IdCentroFormacion.value = "";
   descripcion.value = "";
   nombreArchivo.value = "";
+  nomDoc.value = "";
+  legaNom.value = "";
   modal.value = false
   bd.value = false;
   check.value = ""

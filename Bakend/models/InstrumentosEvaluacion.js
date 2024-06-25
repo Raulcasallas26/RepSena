@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const InstrumentosEvaluacionSchema = new mongoose.Schema({
     nombre:{type:String},
     documento:{type:String},
+    nomDoc:{type:String},
     estado:{type: Boolean, default: true},
 }) 
 

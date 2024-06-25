@@ -23,8 +23,8 @@
                     <div class="top-half" style="display: flex">
                         <div class="info">
                             <p><strong>Nombre:</strong> {{ instrumento.nombre }}</p>
-                            <p><strong>Documentos:</strong><a :href="instrumento.documento"
-                                    target="_blank">Documento</a> </p>
+                            <p><strong>Documentos:  </strong><a :href="instrumento.documento"
+                                    target="_blank">  {{ instrumento.nomDoc }} </a>  </p>
                             <strong>Estado: </strong>
                             <span class="text-green" v-if="instrumento.estado === true">
                                 Activo</span>
@@ -88,7 +88,7 @@
                                     <div class="q-gutter-md custom-file-container">
                                         <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
                                         <label for="file-upload" class="custom-file-label">
-                                            <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
+                                            <span>{{ nombreArchivo || (legaNom  ||  'Seleccionar archivo') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -121,7 +121,6 @@ import { Notify } from "quasar"
 import { useInstrumentosEvaluacionStore } from "../stores/InstrumentosEvaluacion";
 import { useLoginStore } from "../stores/login.js";
 import { load } from "../routes/direccion.js";
-import { QSpinnerIos } from 'quasar';
 const useInstrumentos = useInstrumentosEvaluacionStore();
 const useLogin = useLoginStore();
 let Instrumentos = ref([]);
@@ -129,6 +128,8 @@ let nombreArchivo = ref("")
 let alert = ref(false);
 let check = ref("");
 let indice = ref(null);
+let nomDoc = ref("")
+let legaNom = ref("")
 let bd = ref(false);
 let r = ref("")
 let nombre = ref("");
@@ -137,7 +138,6 @@ const loading = ref(false);
 
 async function listarInstrumentos() {
     load.value = true;
-    console.log(useLogin.token);
     let InstrumentosEvaluacion = await useInstrumentos.getInstrumentosEvalacion(
         useLogin.token);
     console.log(InstrumentosEvaluacion);
@@ -149,9 +149,7 @@ async function validarCampos() {
     console.log(bd.value);
     if (nombre.value.trim() === "") {
         mostrarAlerta("El Nombre es obligatorio");
-    } else if (documento.value === null) {
-        mostrarAlerta("Es obligatorio que suba un documento");
-    } else if (nombreArchivo.value.trim() === "") {
+    } else if (nombreArchivo.value.trim() === "" && legaNom.value.trim() === "") {
         mostrarAlerta("Es obligatorio que suba un documento");
     } else {
         alert.value = false;
@@ -175,6 +173,7 @@ async function guardar() {
         let r = await useInstrumentos.addInstrumentosEvaluacion({
             nombre: nombre.value,
             documento: documento.value,
+            nomDoc: nomDoc.value,
         });
         console.log(r.status);
         if (r.status == 201) {
@@ -198,12 +197,14 @@ const urlDoc = (event) => {
     const file = event.target.files[0];
     if (file) {
         nombreArchivo.value = file.name;
+        nomDoc.value = nombreArchivo.value
         documento.value = file;
     } else {
         nombreArchivo.value = '';
         documento.value = null;
     }
 };
+
 
 const edito = (index) => {
     let r = Instrumentos.value[index];
@@ -212,6 +213,8 @@ const edito = (index) => {
     alert.value = true;
     nombre.value = r.nombre;
     documento.value = r.documento;
+    nomDoc.value = r.nomDoc;
+    legaNom.value = nomDoc.value
 };
 
 async function editar() {
@@ -221,21 +224,22 @@ async function editar() {
         let Instrumento = {
             nombre: nombre.value,
             documento: documento.value,
+            nomDoc: nomDoc.value
         }
 
         let r = await useInstrumentos.editInstrumentosEvaluacion(
             indice.value,
             Instrumento.nombre,
             Instrumento.documento,
+            Instrumento.nomDoc
         );
         console.log(r);
         console.log(r.status, r);
         if (r.status === 201) {
             console.log(r);
-            console.log("Se edito el usuario con exito");
             listarInstrumentos();
             limpiarFormulario();
-            alert.value = false; // Cierra la alerta
+            console.log("Se edito el usuario con exito");
         } else {
             console.error("Error al editar el usuario");
             // Puedes mostrar un mensaje de error aquí si es necesario
@@ -252,6 +256,9 @@ async function editar() {
 function limpiarFormulario() {
     nombre.value = "";
     documento.value = "";
+    nomDoc.value = "";
+    legaNom.value = "";
+    nombreArchivo.value = "";
     alert.value = false;
     bd.value = false;
 }
