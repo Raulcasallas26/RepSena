@@ -1,37 +1,35 @@
-import MaterialesApoyoModel from "../models/MaterialesApoyo.js";
+import UsuariosModel from "../models/Usuarios.js"
+import bcrypt from "bcrypt"
 import url from "url"
 import path from "path"
-import bcrypt from "bcrypt"
 import { v2 as cloudinary } from "cloudinary"
 
-const httpMaterialesApoyo = {
-    getMaterialesApoyo: async (req, res) => {
+const httpUsuarios = {
+    getUsuarios: async (req, res) => {
         try {
-            const MaterialesApoyo = await MaterialesApoyoModel.find();
-            res.json({ MaterialesApoyo });
+            const Usuarios = await UsuariosModel.find({})
+            res.status(200).json({ Usuarios });
         } catch (error) {
-            res
-                .status(500)
-                .json({
-                    mensaje: "Error al obtener infotmacion de material de apoyo",
-                    error,
-                });
+            res.status(500).json({ mensaje: "Error al obtener los Usuarios", error })
         }
     },
-
-    postMaterialesApoyo: async (req, res) => {
+    
+    postUsuarios: async (req, res) => {
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_NAME,
             api_key: process.env.CLOUDINARY_KEY,
             api_secret: process.env.CLOUDINARY_SECRET,
             secure: true,
         });
+
         try {
-            const { codigo, nombre, documento, descripcion } = req.body;
-            const { documentos } = req.files;
-            if (documentos) {
-                const extension = documentos.name.split(".").pop();
-                const { tempFilePath } = documentos;
+            const {
+                nombre, apellidos, cedula, telefono, email, password, perfilProfesional, RolUsuario, RedConocimiento
+            } = req.body;
+            const { curriculum } = req.files;
+            if (curriculum) {
+                const extension = curriculum.name.split(".").pop();
+                const { tempFilePath } = curriculum;
                 const result = await cloudinary.uploader.upload(tempFilePath, {
                     width: 250,
                     crop: "limit",
@@ -39,123 +37,123 @@ const httpMaterialesApoyo = {
                     allowedFormats: ["jpg", "png", "docx", "xlsx", "pptx", "pdf"],
                     format: extension,
                 });
-                const buscar = await MaterialesApoyoModel.findOne({ codigo: codigo });
+                const buscar = await UsuariosModel.findOne({ cedula: cedula });
                 if (buscar) {
                     return res.status(404).json({
-                        msg: ` Se encontró un Material de apoyo con el código ${codigo} en esta red`
+                        msg: ` Se encontró un UsuariosModel con el código ${cedula} en esta red`
                     });
                 } else {
-                    const nuevoMaterialesApoyo = new MaterialesApoyoModel({
-                        codigo,
-                        nombre,
-                        documento,
-                        descripcion,
-                        documentos: result.url,
+                    const nuevoUsuario = new UsuariosModel({
+                        nombre: nombre,
+                        apellidos: apellidos,
+                        cedula: cedula,
+                        telefono: telefono,
+                        email: email,
+                        password: password,
+                        perfilProfesional: perfilProfesional,
+                        curriculum: result.url,
+                        RolUsuario: RolUsuario,
+                        RedConocimiento: RedConocimiento
                     });
 
-                    const MateriarlApoyoCreado = await nuevoMaterialesApoyo.save();
-                    res.status(201).json({ mensaje: "Un material de apoyo insertado!!", MateriarlApoyoCreado });
+                    const salt = bcrypt.genSaltSync();
+                    nuevoUsuario.password = bcrypt.hashSync(req.body.password, salt);
+                    const UsuarioCreado = await nuevoUsuario.save();
+                    res.status(201).json({mensaje: "Un usuario insertado!!", UsuarioCreado});
                 }
             }
-        } catch (error) {
-            console.log(error);
-            return res.status(500)
-                .json({ mensaje: "Error al insertar material de apoyo", error: error.message });
-        }
-    },
-
-    putMaterialesApoyo: async (req, res) => {
-        cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_NAME,
-            api_key: process.env.CLOUDINARY_KEY,
-            api_secret: process.env.CLOUDINARY_SECRET,
-            secure: true,
-        });
-        try {
-            const { id } = req.params;
-            const { codigo, nombre, documento, descripcion } = req.body;
-
-            const buscarCodigo = await MaterialesApoyoModel.findOne({ codigo: codigo });
-            if (buscarCodigo && buscarCodigo._id.toString() !== id) {
-                return res
-                    .status(404)
-                    .json({ msg: "Ya se encuentra un Material de apoyo registrado con ese codigo" });
-            };
-
-            let updatedData = {
-                codigo: codigo,
-                nombre: nombre,
-                documento: documento,
-                descripcion: descripcion
-            };
-
-            if (req.files && req.files.documentos) {
-                const documentos = req.files.documentos;
-                const extension = documentos.name.split(".").pop();
-                const { tempFilePath } = documentos;
-                const result = await cloudinary.uploader.upload(tempFilePath, {
-                    width: 250,
-                    crop: "limit",
-                    resource_type: "raw",
-                    allowedFormats: ["jpg", "png", "docx", "xlsx", "pptx", "pdf"],
-                    format: extension,
-                });
-
-                const buscar = await MaterialesApoyoModel.findById(id);
-
-                if (buscar.documentos) {
-                    const nombreTemp = buscar.documentos.split("/");
-                    const nombredocumentos = nombreTemp[nombreTemp.length - 1];
-                    const [public_id] = nombredocumentos.split(".");
-                    await cloudinary.uploader.destroy(public_id);
-                };
-
-                updatedData.documentos = result.url;
-            };
-
-            const buscarMatApoyo = await MaterialesApoyoModel.findByIdAndUpdate(
-                { _id: id },
-                { $set: updatedData },
-                { new: true }
-            );
-            res.status(201).json(buscarMatApoyo);
         } catch (error) {
             console.log(error);
             return res.status(500).json({ error: error.message });
         }
     },
 
-    putMaterialesApoyoEstado: async (req, res) => {
-        const { id } = req.params;
+    putUsuarios : async (req, res) => {
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_NAME,
+            api_key: process.env.CLOUDINARY_KEY,
+            api_secret: process.env.CLOUDINARY_SECRET,
+            secure: true,
+        });
 
         try {
-            const MaterialesApoyo = await MaterialesApoyoModel.findOne({ id });
+            const { id } = req.params;
+            const {
+                nombre, apellidos, cedula, telefono, email, password, perfilProfesional, RolUsuario, RedConocimiento
+            } = req.body;
 
-            if (!MaterialesApoyo) {
+            const buscarCodigo = await UsuariosModel.findOne({ cedula: cedula });
+            if (buscarCodigo && buscarCodigo._id.toString() !== id) {
                 return res
-                    .status(400)
-                    .json({ mensaje: "Material de apoyo no encontrados" });
-            }
+                    .status(404)
+                    .json({ msg: "Ya se encuentra un Usuario registrado con ese codigo" });
+            };
 
-            MaterialesApoyo.estado = !MaterialesApoyo.estado;
+            let updatedData = {
+                nombre: nombre,
+                        apellidos: apellidos,
+                        cedula: cedula,
+                        telefono: telefono,
+                        email: email,
+                        password: password,
+                        perfilProfesional: perfilProfesional,
+                        RolUsuario: RolUsuario,
+                        RedConocimiento: RedConocimiento
+            };
 
-            await MaterialesApoyo.save();
-
-            const estadoMensaje = MaterialesApoyo.estado ? "Activo" : "Inactivo";
-
-            res.json({
-                mensaje: `Estado de material de apoyo modificado a  ${estadoMensaje}`,
-                MaterialesApoyo: MaterialesApoyo,
-            });
-        } catch (error) {
-            res
-                .status(500)
-                .json({
-                    mensaje: "Error al cambiar la informacion del material de apoyo",
-                    error,
+            if (req.files && req.files.curriculum) {
+                const curriculum = req.files.curriculum;
+                const extension = curriculum.name.split(".").pop();
+                const { tempFilePath } = curriculum;
+                const result = await cloudinary.uploader.upload(tempFilePath, {
+                    width: 250,
+                    crop: "limit",
+                    resource_type: "raw",
+                    allowedFormats: ["jpg", "png", "docx", "xlsx", "pptx", "pdf"],
+                    format: extension,
                 });
+
+                const buscar = await UsuariosModel.findById(id);
+
+                if (buscar.curriculum) {
+                    const nombreTemp = buscar.curriculum.split("/");
+                    const nombrecurriculum = nombreTemp[nombreTemp.length - 1];
+                    const [public_id] = nombrecurriculum.split(".");
+                    await cloudinary.uploader.destroy(public_id);
+                };
+
+                updatedData.curriculum = result.url;
+            };
+
+        
+            const buscarUsuario = await UsuariosModel.findByIdAndUpdate(
+                { _id: id },
+                { $set: updatedData },
+                { new: true }
+            );
+            res.status(201).json(buscarUsuario);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ error: error.message });
         }
     },
-};
 
-export default httpMaterialesApoyo;
+    putUsuariosEstado: async (req, res) => {
+        const { id } = req.params
+        const usu = await UsuariosModel.findById(id)
+        let usuario = null
+        if (usu.estado) {
+            usuario = await UsuariosModel.findByIdAndUpdate(id, { estado: false })
+        } else {
+            usuario = await UsuariosModel.findByIdAndUpdate(id, { estado: true })
+        }
+        const usuarioAutenticado = req.usuario
+        res.json({
+            msj: "fue cambiado el estado",
+            usuario,
+            usuarioAutenticado
+        })
+    },
+}
+
+export default httpUsuarios

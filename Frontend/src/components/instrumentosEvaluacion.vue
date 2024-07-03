@@ -4,6 +4,7 @@
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else class="body">
+            <q-btn style="background-color: grey; color: white; margin-right: 10px;" @click="goBack" label="Regresar" />
             <q-btn style="background-color: green; color: white" :disable="loading === true" label="Agregar"
                 @click="alert = true" />
             <div style="margin-left: 5%" class="text-h4">
@@ -23,8 +24,8 @@
                     <div class="top-half" style="display: flex">
                         <div class="info">
                             <p><strong>Nombre:</strong> {{ instrumento.nombre }}</p>
-                            <p><strong>Documentos:  </strong><a :href="instrumento.documento"
-                                    target="_blank">  {{ instrumento.nomDoc }} </a>  </p>
+                            <p><strong>Documentos: </strong><a :href="instrumento.documento" target="_blank"> {{
+            instrumento.nomDoc }} </a> </p>
                             <strong>Estado: </strong>
                             <span class="text-green" v-if="instrumento.estado === true">
                                 Activo</span>
@@ -68,48 +69,48 @@
 
         <q-dialog v-model="alert" persistent>
             <q-spinner-dots v-if="loading == true" color="green" size="20em" :thickness="100" />
-                <q-card v-else id="card">
-                    <div style="display: flex">  
-                        <q-card-section>
-                            <div class="text-h4">Registro de instrumento</div>
-                        </q-card-section>
-                        <div style="margin-left: auto; margin-bottom: auto">
-                            <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" />
-                        </div>
-                    </div>
-                    <q-card-section class="q-pt-none" id="card">
-                        <q-card flat bordered class="my-card">
-                            <q-card-section class="q-pa-md">
-                                <div class="q-gutter-md">
-                                    <q-input v-model="nombre" label="Nombre"
-                                        :rules="[(val) => !!val || 'Campo requerido']" />
-                                </div>
-                                <div class="q-gutter-md">
-                                    <div class="q-gutter-md custom-file-container">
-                                        <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
-                                        <label for="file-upload" class="custom-file-label">
-                                            <span>{{ nombreArchivo || (legaNom  ||  'Seleccionar archivo') }}</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </q-card-section>
-                            <q-card-section>
-                                <div role="alert" style=" border: 2px solid red; border-radius: 20px; text-align: center;
-                                background-color: rgba(255, 0, 0, 0.304); " v-if="check !== ''">
-                                    <div>
-                                        {{ check }}
-                                    </div>
-                                </div>
-                            </q-card-section>
-                        </q-card>
+            <q-card v-else id="card">
+                <div style="display: flex">
+                    <q-card-section>
+                        <div class="text-h4">Registro de instrumento</div>
                     </q-card-section>
+                    <div style="margin-left: auto; margin-bottom: auto">
+                        <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" />
+                    </div>
+                </div>
+                <q-card-section class="q-pt-none" id="card">
+                    <q-card flat bordered class="my-card">
+                        <q-card-section class="q-pa-md">
+                            <div class="q-gutter-md">
+                                <q-input v-model="nombre" label="Nombre"
+                                    :rules="[(val) => !!val || 'Campo requerido']" />
+                            </div>
+                            <div class="q-gutter-md">
+                                <div class="q-gutter-md custom-file-container">
+                                    <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
+                                    <label for="file-upload" class="custom-file-label">
+                                        <span>{{ nombreArchivo || (legaNom || 'Seleccionar archivo') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </q-card-section>
+                        <q-card-section>
+                            <div role="alert" style=" border: 2px solid red; border-radius: 20px; text-align: center;
+                                background-color: rgba(255, 0, 0, 0.304); " v-if="check !== ''">
+                                <div>
+                                    {{ check }}
+                                </div>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </q-card-section>
 
-                    <q-card-actions align="right">
-                        <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
-                        <q-btn flat label="Guardar" v-if="bd === false" @click="validarCampos()" color="primary" />
-                        <q-btn flat label="Editar Proyecto" v-else @click="validarCampos()" color="primary" />
-                    </q-card-actions>
-                </q-card>
+                <q-card-actions align="right">
+                    <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
+                    <q-btn flat label="Guardar" v-if="bd === false" @click="validarCampos()" color="primary" />
+                    <q-btn flat label="Editar Proyecto" v-else @click="validarCampos()" color="primary" />
+                </q-card-actions>
+            </q-card>
 
         </q-dialog>
     </div>
@@ -118,11 +119,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { Notify } from "quasar"
+import { useRouter } from 'vue-router';
 import { useInstrumentosEvaluacionStore } from "../stores/InstrumentosEvaluacion";
 import { useLoginStore } from "../stores/login.js";
 import { load } from "../routes/direccion.js";
 const useInstrumentos = useInstrumentosEvaluacionStore();
 const useLogin = useLoginStore();
+const router = useRouter();
 let Instrumentos = ref([]);
 let nombreArchivo = ref("")
 let alert = ref(false);
@@ -290,6 +293,10 @@ async function activar(instrimentos) {
     }
     let est = await useInstrumentos.activarInstrumentosEvaluacion(r.value._id);
     console.log(est);
+}
+
+function goBack() {
+    router.go(-1);
 }
 
 onMounted(async () => {

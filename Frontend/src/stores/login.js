@@ -11,6 +11,7 @@ export const useLoginStore = defineStore(
         let router = useRouter()
         let datos = ref("")
         let usestado = ref (false)
+        let useRed = ref(false)
         let inicio = ref (false)
 
         const validar = async (cedula, password) => {
@@ -38,6 +39,7 @@ export const useLoginStore = defineStore(
             token.value = ""
             rol.value = ""
             sessionStorage.setItem('usestado', JSON.stringify(false));
+            sessionStorage.setItem('useRed', JSON.stringify(false));
             router.push("/")
         }
 
@@ -59,7 +61,7 @@ export const useLoginStore = defineStore(
         }
 
         return {
-            validar, token, logout, rol, datos, reset, usestado, inicio
+            validar, token, logout, rol, datos, reset, usestado, useRed, inicio
         }
     },
     {

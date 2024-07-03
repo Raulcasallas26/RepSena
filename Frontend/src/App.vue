@@ -48,8 +48,15 @@
             <q-item-section>Equipo Ejecutor</q-item-section>
           </q-item>
 
+          <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Instructor' || useLogin.rol === 'Gestor'" v-ripple to="/redConocimento">
+            <q-item-section avatar>
+              <q-icon name="share" />
+            </q-item-section>
+            <q-item-section>Red de Conocimiento</q-item-section>
+          </q-item>
+
           <q-item clickable
-            v-if="useLogin.rol === 'Super' || useLogin.rol === 'Instructor' || useLogin.rol === 'Gestor'" v-ripple
+            v-if="useLogin.rol === 'Super' || useLogin.useRed == true" v-ripple
             to="/programas">
             <q-item-section avatar>
               <q-icon name="book" />
@@ -69,13 +76,6 @@
               <q-icon name="library_books" />
             </q-item-section>
             <q-item-section>Materiales de Apoyo</q-item-section>
-          </q-item>
-
-          <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/redConocimento">
-            <q-item-section avatar>
-              <q-icon name="share" />
-            </q-item-section>
-            <q-item-section>Red de Conocimiento</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/proyectos">
@@ -218,8 +218,15 @@
             <q-item-section>Equipo Ejecutor</q-item-section>
           </q-item>
 
+          <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.rol === 'Instructor' || useLogin.rol === 'Gestor'" v-ripple to="/redConocimento">
+            <q-item-section avatar>
+              <q-icon name="share" />
+            </q-item-section>
+            <q-item-section>Red de Conocimiento</q-item-section>
+          </q-item>
+
           <q-item clickable
-            v-if="useLogin.rol === 'Super' || useLogin.rol === 'Instructor' || useLogin.rol === 'Gestor'" v-ripple
+            v-if="useLogin.rol === 'Super' ||  useLogin.useRed == true" v-ripple
             to="/programas">
             <q-item-section avatar>
               <q-icon name="book" />
@@ -239,13 +246,6 @@
               <q-icon name="library_books" />
             </q-item-section>
             <q-item-section>Materiales de Apoyo</q-item-section>
-          </q-item>
-
-          <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/redConocimento">
-            <q-item-section avatar>
-              <q-icon name="share" />
-            </q-item-section>
-            <q-item-section>Red de Conocimiento</q-item-section>
           </q-item>
 
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/proyectos">
@@ -358,6 +358,8 @@ const leftDrawerOpen = ref(false);
 const router = useRouter();
 const windowWidth = ref(window.innerWidth);
 
+console.log(useLogin.useRed);
+
 async function getcolor() {
   try {
     let color = await Storecolor.getColor(useLogin.token);
@@ -388,6 +390,7 @@ const configuracion = () => {
 function cerrar() {
   useLogin.logout();
   sessionStorage.setItem('usestado', JSON.stringify(false));
+  sessionStorage.setItem('useRed', JSON.stringify(false));
   console.log("ce cerro la sesion");
   useLogin.inicio = false;
   window.location.reload();
@@ -419,6 +422,11 @@ onMounted(async () => {
   if (savedState !== null) {
     useLogin.usestado = JSON.parse(savedState); // Convertir a booleano
     sessionStorage.removeItem('usestado'); // Limpiar el almacenamiento local
+  }
+  const guardarRed = sessionStorage.getItem( 'useRed');
+  if (guardarRed !== null) {
+    useLogin.useRed = JSON.parse(guardarRed); // Convertir a booleano
+    sessionStorage.removeItem( 'useRed'); // Limpiar el almacenamiento local
   }
 });
 // Observa cambios en el valor de isMobile para cerrar el menú lateral si es necesario

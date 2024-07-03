@@ -1,562 +1,394 @@
 <template>
   <div class="card-container">
-    <div class="body">
-      <q-btn style="background-color: green" :disable="loading" label="Agregar" @click="showModalAgregar = true" />
-      <div style="margin-left: 5%" class="text-h4">Guias de Aprendizaje</div>
-      <q-space />
-      <q-input borderless dense debounce="300" style="border-radius: 10px; border: grey solid 0.5px; padding: 5px"
-        color="primary" v-model="filter">
-        <template v-slot:append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
+    <div class="clas" v-if="load === true" style="margin-top: 5px;">
+      <q-linear-progress ark rounded indeterminate color="green" />
     </div>
-    <div>
-      <div class="text3">Guias</div>
-      <div v-for="(instru, index) in Instrumen" :key="index">
-        <div class="card2">
-          <p><strong>Nombre:</strong> {{ instru.nombre }}</p>
-          <div class="nnn">
-            <button class="boton">
-              <img src="https://cdn.icon-icons.com/icons2/916/PNG/512/Menu_icon_icon-icons.com_71858.png" alt="Icono"
-                class="img" />
+    <div v-else>
+      <div class="body" style="position: relative">
+        <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
+          @click="modal = true" />
+        <div style="margin-left: 5%" class="text-h4">Guias de Aprendizaje</div>
+        <q-space />
+        <q-input borderless dense debounce="300" style="border-radius: 10px; border: grey solid 0.5px; padding: 5px"
+          color="primary" v-model="filter">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
+      <div>
+        <!-- Itera a través de los MatApoyos y muestra cada uno en un card -->
+        <div v-for="(guia, index) in Guia" :key="index">
+          <div class="card">
+            <div class="top-half">
+              <div class="info">
+                <p><strong>Código: </strong> {{ guia.codigo }}</p>
+                <p><strong>Nombre: </strong> {{ guia.nombre }}</p>
+                <p><strong> Fase: </strong> {{ guia.fase }}</p>
+              </div>
+              <div class="buttons">
+                <button @click="toggleDetails(index)" class="rotate-button">
+                  <div class="arrow-icon" :class="{ rotate: isRotated[index] }">
+                    <img src="https://cdn-icons-png.flaticon.com/512/32/32195.png" alt="Arrow" class="arrow-icon" />
+                  </div>
+                </button>
+                <button class="editar" @click="edito(guia)">
+                  <img src="https://cdn-icons-png.flaticon.com/512/650/650143.png" alt="Editar" class="arrow-icon" />
+                </button>
+              </div>
+            </div>
 
-              <q-menu class="menu" style="width: 4%; align-items: center; justify-content: center">
-                <q-list>
-                  <q-item clickable v-close-popup>
-                    <q-item-section>
-                      <button class="img3">
-                        <img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" alt="" class="img2" />
-                      </button>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup>
-                    <q-item-section>
-                      <button class="img3" @click="abrirModalEdicion(index)">
-                        <img src="https://cdn.icon-icons.com/icons2/3230/PNG/512/edit_modify_icon_196940.png" alt=""
-                          class="img2" />
-                      </button>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup>
-                    <q-item-section>
-                      <button class="img3" @click="detalles(index)">
-                        <img src="https://cdn-icons-png.flaticon.com/512/1/1755.png" alt="" class="img2" />
-                      </button>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup>
-                    <q-item-section>
-                      <button id="boton-estado" class="img3" @click="activar(instru)" v-if="instru.estado === false">
-                        ✅
-                      </button>
-                      <button class="img3" @click="activar(instru)" v-else>
-                        ❌
-                      </button>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-separator />
-                </q-list>
-              </q-menu>
-            </button>
+            <q-slide-transition appear>
+              <div v-show="cardStates[index]">
+                <div class="bottom-half">
+                  <div class="info">
+                    <p @click="abrirInstrumento()" style="cursor: pointer;">
+                      <strong>Instrumentos de evaluación: </strong> {{ guia.InstrumentosEvaluacion }}
+                    </p>
+                    <p @click="abrirMaterial()" style="cursor: pointer;">
+                      <strong>Materiales de Apoyo: </strong> {{ guia.MaterialApoyo }}
+                    </p>
+                    <p><strong>Documentos: </strong><a :href="guia.documento" target="_blank">{{ guia.nomDoc }}</a> </p>
+                  </div>
+                </div>
+              </div>
+            </q-slide-transition>
           </div>
         </div>
-        <div class="divisor">.</div>
       </div>
     </div>
 
-    <div>
-      <q-dialog v-model="showModalAgregar">
-        <q-card class="custom-modal">
+    <q-dialog v-model="modal" persistent>
+      <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
+      <q-card v-else id="card">
+        <div style="display: flex;">
           <q-card-section>
-            <div class="text2">Agregar Guia</div>
-            <q-input v-model="codigo" label="Codigo de la Guia" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-input v-model="nombre" label="Nombre de la Guia" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-input v-model="fase" label="Fase de la Guia" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-select v-model="InstrumentosEvaluacion" label="Instrumento de Evaluacion"
-              :options="InstrumentosEvaluacionOptions" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-select v-model="MaterialesApoyo" label="Material de Apoyo" :options="MaterialesApoyoOptions"
-              :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-card-section>
-              <q-input class="input" v-model="archivoOEnlace" label="Documentos" outlined dense clearable
-                :rules="[(val) => !!val || 'Campo requerido']" prepend-icon="attach_file" @clear="limpiarCampo">
-                <template v-slot:append>
-                  <q-icon name="attach_file" style="cursor: pointer" @click="abrirSelectorDeArchivos" />
-                </template>
-              </q-input>
-            </q-card-section>
-            <div role="alert" style="
-                border: 2px solid red;
-                border-radius: 20px;
-                text-align: center;
-                background-color: rgba(255, 0, 0, 0.304);
-              " v-if="check !== ''">
-              <div>
-                {{ check }}
-              </div>
-            </div>
+            <div class="text-h4" v-if="bd === false"> Agregar matrerial de apoyo</div>
+            <div class="text-h4" v-else> Editar material de apoyo</div>
           </q-card-section>
-          <q-card-section>
-            <q-btn @click="limpiarDatos" label="Cancelar" />
-            <q-btn @click="validarYGuardar()" color="primary" label="Agregar" />
-          </q-card-section>
-        </q-card>
-      </q-dialog>
-    </div>
+          <div style="margin-left: auto;    margin-bottom: auto;">
+            <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
+          </div>
+        </div>
 
-    <div>
-      <q-dialog v-model="showModalEdicion">
-        <q-card class="custom-modal">
-          <q-card-section>
-            <div class="text2">Editar Instrumento</div>
-            <q-input v-model="codigo" label="Codigo de la Guia" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-input v-model="nombre" label="Nombre" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-input v-model="fase" label="Fase de la Guia" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-select v-model="InstrumentosEvaluacion" label="Instrumento de Evaluacion"
-              :options="InstrumentosEvaluacionOptions" :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-select v-model="MaterialesApoyo" label="Material de Apoyo" :options="MaterialesApoyoOptions"
-              :rules="[(val) => !!val || 'Campo requerido']" />
-            <q-card-section>
-              <q-input class="input" :rules="[(val) => !!val || 'Campo requerido']" v-model="archivoOEnlace"
-                label="Documentos" outlined dense clearable prepend-icon="attach_file" @clear="limpiarCampo">
-                <template v-slot:append>
-                  <q-icon name="attach_file" style="cursor: pointer" @click="abrirSelectorDeArchivos" />
-                </template>
-              </q-input>
-            </q-card-section>
-            <div role="alert" style="
-                border: 2px solid red;
-                border-radius: 20px;
-                text-align: center;
-                background-color: rgba(255, 0, 0, 0.304);
-              " v-if="check !== ''">
-              <div>
-                {{ check }}
-              </div>
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <q-btn @click="limpiarDatos" label="Cancelar" />
-            <q-btn @click="validaredit()" color="primary" label="Guardar Cambios" />
-          </q-card-section>
-        </q-card>
-      </q-dialog>
-    </div>
-    <div>
-      <q-dialog v-model="showModaldetalles">
-        <q-card class="custom-modal">
-          <q-card-section>
+        <q-card-section class="q-pt-none" id="card">
+          <q-card flat bordered class="my-card">
             <q-card-section class="q-pa-md">
-              <p>
-                <strong style="font-size: large">Fase:</strong>
-                {{ fase }}
-              </p>
-              <p>
-                <strong style="font-size: large">Codigo:</strong>
-                {{ codigo }}
-              </p>
-              <p>
-                <strong style="font-size: large">Nombre:</strong>
-                {{ nombre }}
-              </p>
-
-              <p>
-                <strong style="font-size: large">Documentos:</strong>
-                {{ archivoOEnlace }}
-              </p>
-              <p>
-                <strong style="font-size: large">Materiales de Apoyo:</strong>
-                {{ MaterialesApoyo }}
-              </p>
-              <p>
-                <strong style="font-size: large">Instrumentos de Evaluacion:</strong>
-                {{ InstrumentosEvaluacion }}
-              </p>
-
+              <div class="q-gutter-md">
+                <q-input v-model="codigo" label="Codigo" :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model="nombre" label="Nombre" :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-input v-model="fase" label="Fase" :rules="[(val) => !!val || 'Campo requerido']" />
+              </div>
+              <div class="q-gutter-md">
+                <q-select v-model="InstrumentosEvaluacion" :rules="[(val) => !!val || 'Campo requerido']"
+                  :options="Instrumen" label="Instrumento de evalueación" />
+              </div>
+              <div class="q-gutter-md">
+                <q-select v-model="MaterialApoyo" :rules="[(val) => !!val || 'Campo requerido']" :options="MatApoyo"
+                  label="Material de apoyo" />
+              </div>
+              <div class="q-gutter-md">
+                <div class="q-gutter-md custom-file-container">
+                  <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
+                  <label for="file-upload" class="custom-file-label">
+                    <span>{{ nombreArchivo || (legaNom || 'Seleccionar archivo') }}</span>
+                  </label>
+                </div>
+              </div>
 
             </q-card-section>
-            <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
-            <!-- <q-btn v-else class="q-mx-sm" color="primary" outline @click="edito()">📝</q-btn> -->
             <q-card-section>
-              <div role="alert" style="
-              border: 2px solid red;
-              border-radius: 20px;
-              text-align: center;
-              background-color: rgba(255, 0, 0, 0.304);
-            " v-if="check !== ''">
-                <div>{{ check }}</div>
+              <div role="alert"
+                style=" border: 2px solid red; border-radius: 20px;  text-align: center;  background-color: rgba(255, 0, 0, 0.304);"
+                v-if="check !== ''">
+                <div>
+                  {{ check }}
+                </div>
               </div>
             </q-card-section>
-            <q-card-actions align="right">
-              <q-btn flat label="Cerrar" @click="limpiarDatos" color="primary" v-close-popup />
-              <!-- <q-btn flat label="Editar Usuario" @click="validaredit()" color="primary" /> -->
-            </q-card-actions>
-          </q-card-section>
-        </q-card>
-      </q-dialog>
-    </div>
+          </q-card>
+        </q-card-section>
 
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
+          <q-btn flat label="Guardar" v-if="bd === false" @click="validarCampos()" color="primary" />
+          <q-btn flat label="Editar Usuario" v-else bd=true @click="validarCampos()" color="primary" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useGuiasAprendizStore } from "../stores/GuiasAprediz.js";
+import { useRouter } from "vue-router";
 import { useInstrumentosEvaluacionStore } from "../stores/InstrumentosEvaluacion";
 import { useMaterialesApoyoStore } from "../stores/MaterialesApoyo.js";
+import { useGuiasAprendizStore } from "../stores/GuiasAprediz.js";
 import { useLoginStore } from "../stores/login.js"
-
-const route = useRoute();
+import { load } from "../routes/direccion.js"
 const router = useRouter();
-let Storemateriales = useMaterialesApoyoStore();
-let StoreInstrumentoseva = useInstrumentosEvaluacionStore();
-let StoreInstrumentos = useGuiasAprendizStore();
+let useInstrumentosEva = useInstrumentosEvaluacionStore();
+let useMaterialApoyo = useMaterialesApoyoStore();
+let useGuias = useGuiasAprendizStore();
 let useLogin = useLoginStore()
+let nombreArchivo = ref("");
+let alert = ref(false);
+let bd = ref(false);
+let Guia = ref([])
+let MaterApoyo = ref([]);
+let MatApoyo = ref([]);
+let Instru = ref([]);
 let Instrumen = ref([]);
-
-let showModalAgregar = ref(false);
-let showModalEdicion = ref(false);
-
 let codigo = ref("");
 let nombre = ref("");
-let detalle = ref(false);
 let fase = ref("");
-let InstrumentosEvaluacion = ref(null);
-let MaterialesApoyo = ref(null);
-const archivoOEnlace = ref("");
+let documento = ref("");
+let InstrumentosEvaluacion = ref("");
+let MaterialApoyo = ref("");
+let nomDoc = ref("");
+let filter = ref("");
 let check = ref("");
-let Tipo = ref("");
-let Descripcion = ref("");
-/*let IdCentroFormacion = ref("");*/
+let legaNom = ref("");
+let r = ref("");
+let modal = ref(false);
+let indice = ref(null);
+let IdCentroFormacion = ref("");
+const loading = ref(false);
 
-let r = {
-  value: "",
-  nombre: "",
-  documento: "",
-  fase: "",
-  codigo: "",
-  idInstrumentosEvaluacion: "",
-  idMaterialApoyo: "",
+async function ListarGuias() {
+  load.value = true
+  console.log(useLogin.token);
+  let Guias = await useGuias.getGuiasAprendiz(useLogin.token);
+  console.log(Guias);
+  Guia.value = Guias.data.GuiasAprendiz;
+  console.log(Guia.value);
+  load.value = false
+}
+
+async function ListarInstumentoEva() {
+  load.value = true
+  let Instrumentos = await useInstrumentosEva.getInstrumentosEvalacion(useLogin.token);
+  console.log(Instrumentos);
+  Instru.value = Instrumentos.data.InstrumentosEvaluacion;
+  Instrumen.value = Instru.value.map(item => ({
+    value: item.nombre,
+    label: item.nombre,
+  }))
+  console.log(Instrumen.value);
+  load.value = false
+}
+
+function abrirInstrumento() {
+  sessionStorage.setItem('useRed', true);
+  router.push("/instrumentosEvaluacion")
+}
+
+async function ListarMaterialApoyo() {
+  load.value = true
+  let apoyo = await useMaterialApoyo.getMaterialesApoyo(useLogin.token);
+  console.log(apoyo);
+  MaterApoyo.value = apoyo.data.MaterialesApoyo;
+  MatApoyo.value = MaterApoyo.value.map(item => ({
+    value: item.nombre,
+    label: item.nombre,
+  }))
+  console.log(MatApoyo.value);
+  load.value = false
+}
+
+function abrirMaterial() {
+  sessionStorage.setItem('useRed', true);
+  router.push("/materialesApoyo")
+}
+
+async function validarCampos() {
+  console.log(bd.value);
+  if (codigo.value.trim() === "") {
+    mostrarAlerta("El Codigo es obligatorio");
+  } else if (nombre.value.trim() === "") {
+    mostrarAlerta("El Nombre es obligatorio");
+  } else if (fase.value.trim() === "") {
+    mostrarAlerta("La Fase es obligatoria");
+  } else if (!InstrumentosEvaluacion.value) {
+    mostrarAlerta("Es obligatorio elegir un Instrumento de Evaluacion");
+  } else if (!MaterialApoyo.value) {
+    mostrarAlerta("Es obligatorio elegir el material de apoyo");
+  } else if (nombreArchivo.value.trim() === "" && legaNom.value.trim() === "") {
+    mostrarAlerta("Es obligatorio que suba un documento");
+  } else {
+    alert.value = false;
+    if (bd.value == false) {
+      guardar();
+    } else {
+      editar();
+    }
+  }
+}
+async function guardar() {
+  console.log("Estoy guardando");
+  loading.value = true;
+  try {
+    let r = await useGuias.addGuiasAprendiz({
+      codigo: codigo.value,
+      nombre: nombre.value,
+      fase: fase.value,
+      InstrumentosEvaluacion: InstrumentosEvaluacion.value.value,
+      MaterialApoyo: MaterialApoyo.value.value,
+      documento: documento.value,
+      nomDoc: nomDoc.value,
+    });
+    console.log(r);
+    console.log(r.status);
+    if (r.status == 201) {
+      console.log("Se guardó un nuevo Material de apoyo");
+      alert.value = false;
+      ListarGuias();
+      limpiarFormulario();
+    } else {
+      console.error("Error al guardar el Material de apoyo");
+      // Puedes mostrar un mensaje de error aquí si es necesario
+    }
+  } catch (error) {
+    console.error("Error en la solicitud:", error);
+    // Puedes manejar errores de red u otros errores aquí si es necesario
+  } finally {
+    loading.value = false;
+  }
+}
+
+const urlDoc = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    nombreArchivo.value = file.name;
+    nomDoc.value = nombreArchivo.value
+    documento.value = file;
+  } else {
+    nombreArchivo.value = '';
+    documento.value = null;
+  }
 };
 
-const loading = ref(false);
-const filter = ref(""); // Agregado para la búsqueda
+function edito(guia) {
+  r.value = guia
+  bd.value = true
+  modal.value = true;
+  indice.value = r.value._id;
+  codigo.value = r.value.codigo;
+  nombre.value = r.value.nombre;
+  fase.value = r.value.fase;
+  InstrumentosEvaluacion.value = r.value.InstrumentosEvaluacion;
+  MaterialApoyo.value = r.value.MaterialApoyo
+  documento.value = r.value.documento;
+  nomDoc.value = r.value.nomDoc;
+  legaNom.value = nomDoc.value
+}
+
+async function editar() {
+  loading.value = true;
+  try {
+    console.log("hola estoy editando");
+    let GuiaData = {
+      codigo: codigo.value,
+      nombre: nombre.value,
+      fase: fase.value,
+      InstrumentosEvaluacion: InstrumentosEvaluacion.value,
+      MaterialApoyo: MaterialApoyo.value,
+      documento: documento.value,
+      nomDoc: nomDoc.value,
+    }
+
+    if (InstrumentosEvaluacion.value && InstrumentosEvaluacion.value.value) {
+      GuiaData.InstrumentosEvaluacion = InstrumentosEvaluacion.value.value
+    }
+
+    if (MaterialApoyo.value && MaterialApoyo.value.value) {
+      GuiaData.MaterialApoyo = MaterialApoyo.value.value
+    }
+
+    let r = await useGuias.editGuiasAprendiz(
+      indice.value,
+      GuiaData.codigo,
+      GuiaData.nombre,
+      GuiaData.fase,
+      GuiaData.InstrumentosEvaluacion,
+      GuiaData.MaterialApoyo,
+      GuiaData.documento,
+      GuiaData.nomDoc,
+    );
+    console.log("se insertaron los datos");
+    console.log(r.status, r);
+    if (r.status === 201) {
+      console.log(r);
+      console.log("Se edito el usuario con exito");
+      ListarGuias();
+      limpiarFormulario();
+      alert.value = false; // Cierra la alerta
+    } else {
+      console.error("Error al editar el usuario");
+      // Puedes mostrar un mensaje de error aquí si es necesario
+    }
+  } catch (error) {
+    console.error("Error en la solicitud:", error);
+    console.log(error);
+    // Puedes manejar errores de red u otros errores aquí si es necesario
+  } finally {
+    loading.value = false;
+  }
+}
+
+const cardStates = ref({});
+const isRotated = ref({});
+const toggleDetails = (index) => {
+  cardStates.value[index] = !cardStates.value[index];
+  isRotated.value[index] = !isRotated.value[index];
+};
+
 function mostrarAlerta(mensaje) {
   alert.value = true;
   check.value = mensaje;
 }
 
-const limpiarDatos = () => {
+function limpiarFormulario() {
   codigo.value = "";
   nombre.value = "";
   fase.value = "";
-  InstrumentosEvaluacion.value = null;
-  MaterialesApoyo.value = null;
-  archivoOEnlace.value = "";
-  check.value = "";
-  showModalEdicion.value = false;
-  showModalAgregar.value = false;
-};
-async function validarYGuardar() {
-  if (codigo.value.trim() === "") {
-    mostrarAlerta("El Codigo es obligatorio");
-  } else if (nombre.value.trim() === "") {
-    mostrarAlerta("El Nombre es obligatorio");
-  } else if (!fase.value) {
-    mostrarAlerta("La Fase es oblogatoria");
-  } else if (!InstrumentosEvaluacion.value) {
-    mostrarAlerta("El Instrumento es oblogatorio");
-  } else if (!MaterialesApoyo.value) {
-    mostrarAlerta("Los materiales son oblogatorios");
-  } else if (!archivoOEnlace.value) {
-    mostrarAlerta("El Archivo es oblogatorio");
-  } else {
-    alert.value = false;
-    agregarAmbiente();
-  }
+  documento.value = "";
+  InstrumentosEvaluacion.value = "";
+  MaterialApoyo.value = "";
+  nomDoc.value = "";
+  nombreArchivo.value = "";
+  legaNom.value = "";
+  modal.value = false
+  bd.value = false;
+  check.value = ""
 }
-async function agregarAmbiente() {
-  loading.value = true;
-  let r = await StoreInstrumentos.addGuiasAprendiz({
-    nombre: nombre.value,
-    codigo: codigo.value,
-    documento: archivoOEnlace.value,
-    fase: fase.value,
-    idInstrumentosEvaluacion: InstrumentosEvaluacion.value.value,
-    idMaterialApoyo: MaterialesApoyo.value.value,
-  });
-
-  console.log(nombre.value, archivoOEnlace.value, codigo.value);
-  listarGias();
-  limpiarDatos();
-}
-
-listarGias()
-
-async function listarGias() {
-  console.log("estoy en listar gias");
-  let Instrumento = await StoreInstrumentos.getGuiasAprendiz(useLogin.token);
-  console.log(Instrumento);
-  Instrumen.value = Instrumento.data;
-}
-
-const InstrumentosEvaluacionOptions = ref([]);
-
-const getInstrumentos = async () => {
-  try {
-    const response = await StoreInstrumentoseva.getInstrumentosEvalacion(useLogin.token);
-    const instrumentos = response.data.InstrumentosEvaluacion;
-
-    // Crear las opciones para el select
-    InstrumentosEvaluacionOptions.value = instrumentos.map((item) => ({
-      value: item.nombre, // El valor que se seleccionará
-      label: item.nombre, // La etiqueta que se mostrará
-    }));
-  } catch (error) {
-    console.error(error);
-    console.log("hay un error en conectar la tabla");
-  }
-};
-
-const MaterialesApoyoOptions = ref([]);
-
-const getMaterialesApoyo = async () => {
-  try {
-    const response = await Storemateriales.getMaterialesApoyo(useLogin.token);
-    const materiales = response.data.MaterialesApoyo;
-
-    // Crear las opciones para el select
-    MaterialesApoyoOptions.value = materiales.map((item) => ({
-      value: item.nombre, // El valor que se seleccionará
-      label: item.nombre, // La etiqueta que se mostrará
-    }));
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const cardStates = ref({});
-const isRotated = ref({});
-const toggleDetails = (index) => {
-  // Cambia el estado de la card en el índice específico
-  cardStates.value[index] = !cardStates.value[index];
-  isRotated.value[index] = !isRotated.value[index];
-};
-
-const opciones = [
-  "001 Centro Agroturistico sede san gil",
-  "002 Centro Agroturistico sede socorro",
-];
-
-const abrirSelectorDeArchivos = () => {
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.style.display = "none";
-  fileInput.addEventListener("change", handleFileSelection);
-  document.body.appendChild(fileInput);
-  fileInput.click();
-};
-
-// Función para manejar la selección de archivos
-const handleFileSelection = (event) => {
-  const selectedFile = event.target.files[0];
-  const selectedFileName = selectedFile ? selectedFile.name : "";
-
-  // Asignar el nombre del archivo al campo archivoOEnlace
-  archivoOEnlace.value = selectedFileName;
-
-  // Buscar la opción que corresponde al nombre del archivo
-  const selectedOption = opciones.find((option) =>
-    option.includes(selectedFileName)
-  );
-
-  if (selectedOption) {
-    // Enviar el texto correspondiente a la opción seleccionada
-    const textoDeOpcion = selectedOption;
-    // Aquí puedes hacer lo que necesites con textoDeOpcion
-    alert(`Texto de la opción seleccionada: ${textoDeOpcion}`);
-  } else {
-    // Manejar el caso en que no se encuentre una opción correspondiente
-    alert("No se encontró una opción correspondiente al archivo seleccionado.");
-  }
-
-  event.target.remove(); // Elimina el input de tipo file después de su uso
-};
-
-let idEdicion = ref(null);
-let showModaldetalles = ref(false);
-const detalles = (index) => {
-  const y = Instrumen.value[index];
-  console.log(index);
-  if (y) {
-    nombre.value = y.nombre;
-    archivoOEnlace.value = y.documento;
-    fase.value = y.fase;
-    codigo.value = y.codigo;
-    InstrumentosEvaluacion.value = y.idInstrumentosEvaluacion;
-    MaterialesApoyo.value = y.idMaterialApoyo;
-    showModaldetalles.value = true;
-    console.log(y.nombre);
-  } else {
-    console.error(`No se encontró un ambiente en el índice ${index}`);
-    console.log(y);
-  }
-
-  console.log(y);
-}
-
-const abrirModalEdicion = (index) => {
-  idEdicion.value = index;
-  const ambienteSeleccionado = Instrumen.value[index];
-  if (ambienteSeleccionado) {
-    nombre.value = ambienteSeleccionado.nombre;
-    archivoOEnlace.value = ambienteSeleccionado.documento;
-    fase.value = ambienteSeleccionado.fase;
-    codigo.value = ambienteSeleccionado.codigo;
-    InstrumentosEvaluacion.value = ambienteSeleccionado.idInstrumentosEvaluacion;
-    MaterialesApoyo.value = ambienteSeleccionado.idMaterialApoyo;
-    showModalEdicion.value = true;
-  } else {
-    console.error(`No se encontró un ambiente en el índice ${index}`);
-  }
-};
-async function validaredit() {
-  if (codigo.value.trim() === "") {
-    mostrarAlerta("El Codigo es obligatorio");
-  } else if (nombre.value.trim() === "") {
-    mostrarAlerta("El Nombre es obligatorio");
-  } else if (!fase.value) {
-    mostrarAlerta("La Fase es oblogatoria");
-  } else if (!InstrumentosEvaluacion.value) {
-    mostrarAlerta("El Instrumento es oblogatorio");
-  } else if (!MaterialesApoyo.value) {
-    mostrarAlerta("Los Materiales son oblogatorios");
-  } else if (!archivoOEnlace.value) {
-    mostrarAlerta("El Archivo es oblogatorio");
-  } else {
-    alert.value = false;
-    guardarCambios(); // Debes llamar a la función con paréntesis para ejecutarla
-  }
-}
-
-const redirectToVerdoc = (index) => {
-  const objetoId = Instrumen.value[index]._id;
-  router.push({ name: "verdoc", params: { id: objetoId } });
-};
-const guardarCambios = async () => {
-  if (idEdicion.value !== null) {
-    const index = idEdicion.value;
-    const InstrumentoEditado = {
-      codigo: codigo.value,
-      nombre: nombre.value,
-      fase: fase.value,
-      documento: archivoOEnlace.value,
-      idInstrumentosEvaluacion: InstrumentosEvaluacion.value.value,
-      idMaterialApoyo: MaterialesApoyo.value,
-    };
-    console.log(InstrumentoEditado);
-    // Llamar al método de la store para editar el instrumento en la base de datos
-    const response = await StoreInstrumentos.editGuiasAprendiz(
-      Instrumen.value[index]._id,
-      InstrumentoEditado
-    );
-    console.log(response);
-    if (response.status === 200) {
-      Instrumen.value[index] = InstrumentoEditado;
-      showModalEdicion.value = false;
-      idEdicion.value = null;
-      limpiarDatos();
-      getMaterialesApoyo();
-    } else {
-      console.error("Error al guardar los cambios en el servidor");
-    }
-  }
-};
-
-async function activar(instru) {
-  instru.estado = !instru.estado;
-  console.log(instru.estado, "resultado de la condición");
-
-  // Aquí puedes realizar la lógica adicional si es necesario
-
-  let est = await StoreInstrumentos.activarInstrumentosEvaluacion(instru._id);
-  console.log(est);
-}
-
 onMounted(async () => {
-  listarGias();
-  getInstrumentos();
-  getMaterialesApoyo();
+  ListarGuias();
+  ListarMaterialApoyo();
+  ListarInstumentoEva();
 });
+//editMatApoyosFormacion   StoreMatApoyo
 </script>
 
 <style scoped>
-.boton {
-  width: 7%;
-  height: 7%;
-  color: rgba(0, 0, 0, 0);
-  background-color: transparent;
-  border-color: transparent;
-  transition: 0.2s;
-  margin-bottom: 0%;
-}
-
-.boton:hover {
-  width: 7%;
-  transform: scale(1.3);
-}
-
-.img {
-  width: 40%;
-}
-
-.img2 {
-  width: 90%;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.img3 {
-  width: 100%;
-  background-color: transparent;
-  /* Elimina el fondo */
-  border: none;
-  /* Elimina el borde */
-  margin-left: 0%;
-  transition: 0.2s;
-}
-
-.nnn {
-  align-items: end;
-  display: flex;
-  justify-content: end;
-  margin: 1%;
-  margin-top: -2.4%;
-}
-
-.divisor {
-  background-color: rgba(0, 0, 0, 0.311);
-  margin: 1%;
-  font-size: 2px;
-}
-
 .body {
+  margin: 1%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  position: relative;
-  margin: 1rem;
 }
 
-.card2 {
-  background-color: rgba(0, 0, 0, 0.011);
-  width: 100%;
-  height: 20%;
-  font-size: 200%;
-  margin: 1%;
+
+.text {
+  font-size: 500%;
+  color: green;
+  margin-top: 2%;
 }
 
 .text2 {
@@ -565,8 +397,149 @@ onMounted(async () => {
   margin-top: 2%;
 }
 
-.text3 {
-  font-size: 300%;
-  margin-left: 1%;
+.agregar {
+  background-color: green;
+  width: 8%;
+  height: 20%;
+  border-radius: 8px;
+  margin-right: -20%;
+  color: white;
+  font-size: 150%;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.agregar:hover {
+  transform: scale(1.05);
+  /* Aumenta el tamaño en un 5% */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  /* Agrega una sombra suave */
+}
+
+.card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin: 16px;
+}
+
+.top-half {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.bottom-half {
+  margin-top: 16px;
+}
+
+.editar {
+  margin-left: -45%;
+  margin-top: 80%;
+  width: 30%;
+  height: 30%;
+  background-color: rgba(255, 0, 0, 0);
+  border: none;
+}
+
+.rotate-button {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  cursor: pointer;
+  width: 30%;
+  height: 30%;
+  margin-top: -15%;
+  margin-left: 50%;
+  outline: none;
+  padding: 0;
+}
+
+.custom-file-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-file-input {
+  width: 100%;
+  height: 40px;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.custom-file-label {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.custom-file-label:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
+}
+
+.custom-file-label:active {
+  background-color: #d6d8db;
+  border-color: #c6c8ca;
+}
+
+.custom-file-input:focus+.custom-file-label {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label span {
+  pointer-events: none;
+}
+
+.arrow-icon {
+  width: 25px;
+  height: 30px;
+  /* rotate: 90deg; */
+  transition: transform 0.5s ease;
+  /* Duración y documento de transición */
+}
+
+.rotate {
+  transform: rotate(180deg);
+  /* Gira 180 grados al hacer clic */
+}
+
+/* Aplica las transiciones y animaciones */
+.close-button {
+  animation-duration: 0.3s;
+  /* Duración de la animación */
+  animation-timing-function: ease;
+  /* Función de temporización (puedes ajustarla) */
+}
+
+/* Inicialmente, la "X" estará invisible */
+.close-button:before {
+  opacity: 0;
+}
+
+/* Cuando la "X" está activa, aplica la animación de entrada */
+.close-button.active:before {
+  animation-name: fadeInX;
+  opacity: 1;
+}
+
+/* Cuando la "X" está inactiva, aplica la animación de salida */
+.close-button:not(.active):before {
+  animation-name: fadeOutX;
+  opacity: 0;
 }
 </style>

@@ -101,7 +101,6 @@
 
 <script setup>
 import { ref, onMounted, defineExpose } from "vue";
-import { useRoute } from 'vue-router';
 import { useProgramasFormacionStore } from "../stores/programasformacion.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"

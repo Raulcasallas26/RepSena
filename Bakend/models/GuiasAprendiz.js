@@ -4,9 +4,10 @@ const GuiasAprendizSchema = new mongoose.Schema({
     codigo:{type:String},
     nombre:{type:String},
     fase:{type:String},
+    InstrumentosEvaluacion:{type:String},
+    MaterialApoyo:{type:String},
     documento:{type:String},
-    idInstrumentosEvaluacion:{type:String},
-    idMaterialApoyo:{type:String},
+    nomDoc:{type:String},
     estado:{type:Boolean, default:true} 
 }) 
 

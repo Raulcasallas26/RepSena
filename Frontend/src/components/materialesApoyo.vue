@@ -5,6 +5,7 @@
     </div>
     <div v-else>
       <div class="body" style="position: relative">
+        <q-btn style="background-color: grey; color: white; margin-right: 10px;" @click="goBack" label="Regresar" />
         <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
           @click="modal = true" />
         <div style="margin-left: 5%" class="text-h4">Materiales de Apoyo</div>
@@ -117,11 +118,13 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from 'vue-router';
 import { useMaterialesApoyoStore } from "../stores/MaterialesApoyo.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useMaterialApoyo = useMaterialesApoyoStore();
 const useLogin = useLoginStore()
+const router = useRouter();
 let nombreArchivo = ref("");
 let alert = ref(false);
 let bd = ref(false);
@@ -299,6 +302,11 @@ function limpiarFormulario() {
   bd.value = false;
   check.value = ""
 }
+
+function goBack() {
+    router.go(-1);
+}
+
 onMounted(async () => {
   await ListarMaterialApoyo();
 });

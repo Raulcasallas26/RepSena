@@ -52,8 +52,7 @@ const httpInstrumentosEvaluacion = {
             }
         } catch (error) {
             console.log(error);
-            return res.status(500)
-                .json({ mensaje: "Error al insertar el instrumento de evaluación", error: error.message });
+            return res.status(500).json({ mensaje: "Error al insertar el instrumento de evaluación", error: error.message });
         }
     },
 

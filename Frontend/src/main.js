@@ -23,3 +23,4 @@ pinia.use(createPersistedState({
   storage:sessionStorage
 }))
 app.mount('#app')
+

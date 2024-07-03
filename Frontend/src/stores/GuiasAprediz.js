@@ -2,18 +2,9 @@ import { defineStore } from 'pinia'
 import axios from "axios"
 import { urlBackend } from '../routes/direccion.js'
 import { ref } from "vue"
+import { Notify } from "quasar"
 export const useGuiasAprendizStore = defineStore(
     "GuiasAprendiz", () => {
-        const addGuiasAprendiz = async (info) => {
-            try {
-                let res = await axios.post(`${urlBackend}/GuiasAprendiz`, info)
-                return res
-            } catch (error) {
-                console.log("hay un error en la post");
-                return error
-            }
-        } 
-
         const getGuiasAprendiz = async (token) => {
             try {
                 let header = {headers:{"x-token":token}} 
@@ -24,15 +15,74 @@ export const useGuiasAprendizStore = defineStore(
                 return error
             }
         }
-        const editGuiasAprendiz = async (id, info) => {
+
+        const addGuiasAprendiz = async (info, documento) => {
             try {
-                let res = await axios.put(`${urlBackend}/GuiasAprendiz/${id}`, info)
+                const formData = new FormData();
+                for (const key in info) {
+                    formData.append(key, info[key])
+                }
+                formData.append('documento', documento)
+                let res = await axios.post(`${urlBackend}/GuiasAprendiz`, formData, {
+                    headers: { "content-Type": "multipart/form-data" }
+                })
+                Notify.create({
+                    color: "positive",
+                    message: "Registro de la guia de aprendizaje fue exitoso",
+                    icon: "check",
+                    position: "top",
+                    timeout: 3000
+                })
                 return res
             } catch (error) {
-                console.log("hay un error en edirUsers");
+                console.log("hay un error en la post de guias de aprendizaje");
+                console.log(error);
+                Notify.create({
+                    color: "negative",
+                    message: error.response.data.errors[0].msg,
+                    icon: "check",
+                    position: "top",
+                    timeout: 3000
+                })
                 return error
             }
         }
+
+        const editGuiasAprendiz = async (id, codigo, nombre, fase, InstrumentosEvaluacion, MaterialApoyo, documento, nomDoc) => {
+            try {
+                const formData = new FormData();
+                formData.append("codigo", codigo);
+                formData.append("nombre", nombre);
+                formData.append("fase", fase);
+                formData.append("InstrumentosEvaluacion", InstrumentosEvaluacion);
+                formData.append("MaterialApoyo", MaterialApoyo);
+                formData.append("documento", documento);
+                formData.append("nomDoc", nomDoc);
+                let res = await axios.put(`${urlBackend}/GuiasAprendiz/${id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data", },
+                })
+                Notify.create({
+                    color: "positive",
+                    message: "Edicion de la Guia de aprendizaje exitoso",
+                    icon: "check",
+                    position: "top",
+                    timeout: 3000
+                })
+                return res
+            } catch (error) {
+                console.log("hay un error en editGuiasaprendizaje", error);
+                console.log(error);
+                Notify.create({
+                    color: "negative",
+                    message: error.response.data.errors[0].msg,
+                    icon: "check",
+                    position: "top",
+                    timeout: 3000
+                })
+                return error
+            }
+        }
+
         const activarGuiasAprendiz = async (id) => {
             try {
                 let res = await axios.put(`${urlBackend}/GuiasAprendiz/estado/${id}`)

@@ -4,11 +4,12 @@
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else>
-            <q-table class="tabla" flat bordered title="Treats" :rows="red" :columns="columns" row-key="id" :filter="filter"
-                :loading="loading" able-header-class="" virtual-scroll :virtual-scroll-item-size="10"
-                :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]">
+            <q-table class="tabla" flat bordered title="Treats" :rows="red" :columns="columns" row-key="id"
+                :filter="filter" :loading="loading" able-header-class="" virtual-scroll :virtual-scroll-item-size="10"
+                :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]" @row-click="AbrirRed()" to="/programas">
                 <template v-slot:top>
-                    <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar" @click="agregar()" />
+                    <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
+                        @click="agregar()" />
                     <div style="margin-left: 5%;" class="text-h4">Redes de Conocimiento</div>
                     <q-space />
                     <q-input borderless dense debounce="300"
@@ -29,8 +30,8 @@
         </div>
         <div>
             <q-dialog v-model="alert" persistent>
-            <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
-                <q-card v-else id="card" >
+                <q-spinner-ios v-if="loading == true" color="green" size="20em" :thickness="100" />
+                <q-card v-else id="card">
                     <div style="display: flex;">
                         <q-card-section>
                             <div class="text-h4">Registro de Red de Conocimiento</div>
@@ -63,7 +64,8 @@
 
                     <q-card-actions align="right">
                         <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
-                        <q-btn flat label="Guardar" v-if="bd === false" @click="guardar()" color="primary" v-close-popup />
+                        <q-btn flat label="Guardar" v-if="bd === false" @click="guardar()" color="primary"
+                            v-close-popup />
                         <q-btn flat label="Editar Usuario" v-else @click="editarRed()" color="primary" v-close-popup />
                     </q-card-actions>
                 </q-card>
@@ -71,10 +73,12 @@
         </div>
     </div>
 </template>
+
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useRedesConocimientoStore } from "../stores/RedesConocimiento.js";
-import {useLoginStore} from "../stores/login.js"
+import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useRedes = useRedesConocimientoStore();
 const useLogin = useLoginStore()
@@ -84,6 +88,7 @@ let check = ref("")
 let r = ref("")
 let bd = ref(false)
 let indice = ref(null)
+const router = useRouter();
 let codigo = ref("");
 let denominacion = ref("");
 
@@ -92,6 +97,11 @@ let columns = [
     { name: "denominacion", label: "Denominacion", align: "center", field: "denominacion", },
     { name: "opciones", label: "⚫⚫⚫", align: "center", field: "opciones" },
 ];
+
+function AbrirRed() {
+    sessionStorage.setItem('useRed', true);
+    router.push("/programas")
+}
 
 const loading = ref(false);
 const filter = ref("");
@@ -102,7 +112,6 @@ async function obtenerredes() {
     let redes = await useRedes.getRedesConocimiento(useLogin.token);
     console.log(redes);
     red.value = redes.data.RedesConocimiento;
-    console.log(redes.data);
     load.value = false
 }
 
@@ -159,6 +168,7 @@ onMounted(async () => {
 
 });
 </script>
+
 <style scoped>
 .text {
     font-size: 400%;
@@ -219,4 +229,5 @@ onMounted(async () => {
 .close-button:not(.active):before {
     animation-name: fadeOutX;
     opacity: 0;
-}</style>
+}
+</style>
