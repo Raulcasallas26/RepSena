@@ -6,25 +6,31 @@ import { validarJWT } from "../Middlewares/validar-jwt.js";
 
 const router = Router()
 
-router.get("/",[validarJWT], httpDesarrollo.getDesarrollo)
+router.get("/", httpDesarrollo.getDesarrollo)
 
 // router.get("/:id", httpDesarrollo.getDesarrolloId)
 
 router.post("/", [ 
-    check("guasAprendizaje","las guias de aprendizaje es un campo obligatorio").notEmpty().trim().isString(),
-    check("matrizCorrelacion","la matriz correlacion es un campo obligatorio").notEmpty().trim().isString(),
-    check("proyectoFormativo","el proyecto formativo es un campo obligatorio").notEmpty().trim().isString(),
-    check("planeacionPedagogica","la planeacion pedagogica es un campo obligatoria").notEmpty().trim().isString(),
-    check("estado","el estado es un campo obligatorio").notEmpty().trim().isString(),
+    check("nombre","El nombre del sedarrollo curricular es obligatorio").notEmpty().trim().isString(),
+    check("guias","las guias de aprendizaje es un campo obligatorio").notEmpty().trim().isString(),
+    check("matrizCorrelacion").optional(),
+    check("nomMatriz").optional(),
+    check("proyectoFormativo").optional(),
+    check("nomProyecto").optional(),
+    check("planeacionPedagogica").optional(),
+    check("nomPlaneacion").optional(),
     validarResultados
     ], httpDesarrollo.postDesarrollo)
 
 router.put("/:id",[ 
-    check("guasAprendizaje","las guias de aprendizaje es un campo obligatorio").notEmpty().trim().isString(),
-    check("matrizCorrelacion","la matriz correlacion es un campo obligatorio").notEmpty().trim().isString(),
-    check("proyectoFormativo","el proyecto formativo es un campo obligatorio").notEmpty().trim().isString(),
-    check("planeacionPedagogica","la planeacion pedagogica es un campo obligatoria").notEmpty().trim().isString(),
-    check("estado","el estado es un campo obligatorio").notEmpty().trim().isString(),
+    check("nombre","El nombre del sedarrollo curricular es obligatorio").notEmpty().trim().isString(),
+    check("guias","las guias de aprendizaje es un campo obligatorio").notEmpty().trim().isString(),
+    check("matrizCorrelacion").optional(),
+    check("nomMatriz").optional(),
+    check("proyectoFormativo").optional(),
+    check("nomProyecto").optional(),
+    check("planeacionPedagogica").optional(),
+    check("nomPlaneacion").optional(),
     validarResultados
     ], httpDesarrollo.putDesarrollo) 
 

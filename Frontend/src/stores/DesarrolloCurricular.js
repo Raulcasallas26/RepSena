@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import axios from "axios"
 import { urlBackend } from '../routes/direccion.js'
 import { ref } from "vue"
+import { Notify } from "quasar"
 export const useDesarrolloCurricularStore = defineStore(
     "DesarrolloCurricular", () => {
         const addDesarrolloCurricular = async (info) => {
@@ -29,10 +30,10 @@ export const useDesarrolloCurricularStore = defineStore(
             }
         }
 
-        const getDesarrolloCurricular = async (token) => {
+        const getDesarrolloCurricular = async () => {
             try {
-                let header = {headers:{"x-token":token}}
-                let res = await axios.get(`${urlBackend}/desarrolloCurricular`,header)
+                let header = { headers: {  } }
+                let res = await axios.get(`${urlBackend}/desarrolloCurricular`, header)
                 return res
             } catch (error) {
                 console.log(error);
@@ -40,19 +41,31 @@ export const useDesarrolloCurricularStore = defineStore(
                 return error
             }
         }
-        const editDesarrolloCurricular = async (id, info) => {
+
+        const editDesarrolloCurricular = async (id, nombre, guias, matrizCorrelacion, nomMatriz, proyectoFormativo, nomProyecto, planeacionPedagogica, nomPlaneacion) => {
             try {
-                let res = await axios.put(`${urlBackend}/desarrolloCurricular/${id}`, info)
+                const formData = new FormData();
+                formData.append("nombre", nombre);
+                formData.append("guias", guias);
+                formData.append("matrizCorrelacion", matrizCorrelacion);
+                formData.append("nomMatriz", nomMatriz);
+                formData.append("proyectoFormativo", proyectoFormativo);
+                formData.append("nomProyecto", nomProyecto);
+                formData.append("planeacionPedagogica", planeacionPedagogica);
+                formData.append("nomPlaneacion", nomPlaneacion);
+                let res = await axios.put(`${urlBackend}/desarrolloCurricular/${id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data", },
+                })
                 Notify.create({
                     color: "positive",
-                    message: "Edicion del desarrollo curricular exitoso",
+                    message: "Edicion del Desarrollo Curricular fue exitoso",
                     icon: "check",
                     position: "top",
                     timeout: 3000
                 })
                 return res
             } catch (error) {
-                console.log("hay un error en editDesarrolloCurricular");
+                console.log("hay un error en editDesarrollo", error);
                 console.log(error);
                 Notify.create({
                     color: "negative",
@@ -64,6 +77,7 @@ export const useDesarrolloCurricularStore = defineStore(
                 return error
             }
         }
+
         const activarDesarrolloCurricular = async (id) => {
             try {
                 let res = await axios.put(`${urlBackend}/desarrolloCurricular/estado/${id}`)
@@ -74,7 +88,7 @@ export const useDesarrolloCurricularStore = defineStore(
             }
         }
         return {
-            addDesarrolloCurricular, getDesarrolloCurricular, editDesarrolloCurricular, activarDesarrolloCurricular, 
+            addDesarrolloCurricular, getDesarrolloCurricular, editDesarrolloCurricular, activarDesarrolloCurricular,
         }
     }
 )

@@ -4,7 +4,8 @@
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else class="body">
-            <q-btn style="background-color: grey; color: white; margin-right: 10px;" @click="goBack" label="Regresar" />
+            <q-btn style="background-color: whitesmoke; color: white; filter: invert(1); margin-right: 10px;"
+                @click="goBack" label=""> <span style='font-size: 1.5rem;'>🔙</span> </q-btn>
             <q-btn style="background-color: green; color: white" :disable="loading === true" label="Agregar"
                 @click="alert = true" />
             <div style="margin-left: 5%" class="text-h4">

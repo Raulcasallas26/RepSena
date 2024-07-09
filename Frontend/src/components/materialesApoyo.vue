@@ -5,7 +5,8 @@
     </div>
     <div v-else>
       <div class="body" style="position: relative">
-        <q-btn style="background-color: grey; color: white; margin-right: 10px;" @click="goBack" label="Regresar" />
+        <q-btn style="background-color: whitesmoke; color: white; filter: invert(1); margin-right: 10px;"
+          @click="goBack" label=""> <span style='font-size: 1.5rem;'>🔙</span> </q-btn>
         <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
           @click="modal = true" />
         <div style="margin-left: 5%" class="text-h4">Materiales de Apoyo</div>
@@ -46,7 +47,9 @@
                     <p>
                       <strong>Descripción:</strong> {{ MatApoyo.descripcion }}
                     </p>
-                    <p><strong>Documentos:</strong><a :href="MatApoyo.documentos" target="_blank">{{ MatApoyo.nomDoc }}</a> </p>
+                    <p><strong>Documentos:</strong><a :href="MatApoyo.documentos" target="_blank">{{ MatApoyo.nomDoc
+                        }}</a>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -304,7 +307,7 @@ function limpiarFormulario() {
 }
 
 function goBack() {
-    router.go(-1);
+  router.go(-1);
 }
 
 onMounted(async () => {

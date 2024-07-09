@@ -5,6 +5,8 @@
     </div>
     <div v-else>
       <div class="body" style="position: relative">
+        <q-btn style="background-color: whitesmoke; color: white; filter: invert(1); margin-right: 10px;"
+          @click="goBack" label="" > <span style='font-size: 1.5rem;'>🔙</span> </q-btn>
         <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
           @click="modal = true" />
         <div style="margin-left: 5%" class="text-h4">Guias de Aprendizaje</div>
@@ -67,7 +69,7 @@
             <div class="text-h4" v-else> Editar material de apoyo</div>
           </q-card-section>
           <div style="margin-left: auto;    margin-bottom: auto;">
-            <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
+            <q-btn @click="limpiarFormulario()" class="close-button" icon="close" v-close-popup />
           </div>
         </div>
 
@@ -131,12 +133,12 @@ import { useMaterialesApoyoStore } from "../stores/MaterialesApoyo.js";
 import { useGuiasAprendizStore } from "../stores/GuiasAprediz.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
-const router = useRouter();
 let useInstrumentosEva = useInstrumentosEvaluacionStore();
 let useMaterialApoyo = useMaterialesApoyoStore();
 let useGuias = useGuiasAprendizStore();
 let useLogin = useLoginStore()
 let nombreArchivo = ref("");
+const router = useRouter();
 let alert = ref(false);
 let bd = ref(false);
 let Guia = ref([])
@@ -148,16 +150,15 @@ let codigo = ref("");
 let nombre = ref("");
 let fase = ref("");
 let documento = ref("");
+let nomDoc = ref("");
+let legaNom = ref("");
 let InstrumentosEvaluacion = ref("");
 let MaterialApoyo = ref("");
-let nomDoc = ref("");
 let filter = ref("");
 let check = ref("");
-let legaNom = ref("");
 let r = ref("");
 let modal = ref(false);
 let indice = ref(null);
-let IdCentroFormacion = ref("");
 const loading = ref(false);
 
 async function ListarGuias() {
@@ -347,6 +348,10 @@ const toggleDetails = (index) => {
   cardStates.value[index] = !cardStates.value[index];
   isRotated.value[index] = !isRotated.value[index];
 };
+
+function goBack() {
+  router.go(-1);
+}
 
 function mostrarAlerta(mensaje) {
   alert.value = true;
