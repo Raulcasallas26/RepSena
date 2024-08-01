@@ -6,6 +6,8 @@
         :virtual-scroll-sticky-size-start="10" :pagination="pagination" :rows-per-page-options="[15]"
         @virtual-scroll="onScroll">
         <template v-slot:top>
+          <q-btn style="background-color: whitesmoke; color: white; filter: invert(1); margin-right: 10px;"
+                @click="goBack" label=""> <span style='font-size: 1.5rem;'>🔙</span> </q-btn>
           <q-btn style="background-color: green; color: white" :disable="loading" label="Agregar" @click="alert = true" />
           <div style="margin-left: 5%" class="text-h4">Centros de Formacion</div>
           <q-space />
@@ -86,11 +88,13 @@
   
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useCentrosFormacionStore } from "../stores/CentrosFormacion.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useCentros = useCentrosFormacionStore();
 const useLogin = useLoginStore()
+const router = useRouter();
 let alert = ref(false);
 let bd = ref(false);
 let check = ref("");
@@ -134,9 +138,8 @@ async function validarYGuardar() {
     guardar()
 
   }
-
-
 }
+
 async function guardar() {
   loading.value = true;
   try {
@@ -248,6 +251,9 @@ async function listarUsuarios() {
   load.value = false;
 }
 
+function goBack() {
+  router.go(-1);
+}
 
 function agregar() {
   alert.value = true;

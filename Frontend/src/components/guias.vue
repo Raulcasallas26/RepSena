@@ -21,7 +21,7 @@
       <div>
         <!-- Itera a través de los MatApoyos y muestra cada uno en un card -->
         <div v-for="(guia, index) in Guia" :key="index">
-          <div class="card">
+          <div class="card" @click="toggleDetails(index)" >
             <div class="top-half">
               <div class="info">
                 <p><strong>Código: </strong> {{ guia.codigo }}</p>
@@ -137,8 +137,8 @@ let useInstrumentosEva = useInstrumentosEvaluacionStore();
 let useMaterialApoyo = useMaterialesApoyoStore();
 let useGuias = useGuiasAprendizStore();
 let useLogin = useLoginStore()
-let nombreArchivo = ref("");
 const router = useRouter();
+let nombreArchivo = ref("");
 let alert = ref(false);
 let bd = ref(false);
 let Guia = ref([])
@@ -230,6 +230,7 @@ async function validarCampos() {
     }
   }
 }
+
 async function guardar() {
   console.log("Estoy guardando");
   loading.value = true;

@@ -5,8 +5,8 @@
         </div>
         <div v-else>
             <q-table class="tabla" flat bordered title="Treats" :rows="red" :columns="columns" row-key="id"
-                :filter="filter" :loading="loading" able-header-class="" virtual-scroll :virtual-scroll-item-size="10"
-                :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]" @row-click="AbrirRed()" to="/programas">
+                :filter="filter" able-header-class="" virtual-scroll :virtual-scroll-item-size="10"
+                :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]">
                 <template v-slot:top>
                     <q-btn style="background-color: green; color: white;" :disable="loading" label="Agregar"
                         @click="agregar()" />
@@ -21,9 +21,17 @@
                     </q-input>
                 </template>
 
+                <template v-slot:body-cell="props">
+                    <q-td :props="props">
+                        <div @click="AbrirRed(props)">
+                            {{ props.value }}
+                        </div>
+                    </q-td>
+                </template>
+
                 <template v-slot:body-cell-opciones="props">
                     <q-td :props="props">
-                        <q-btn class="q-mx-sm" color="primary" outline @click="edito(props)">📝</q-btn>
+                        <q-btn class="q-mx-sm" color="primary" clickable outline @click="edito(props)">📝</q-btn>
                     </q-td>
                 </template>
             </q-table>
@@ -78,17 +86,21 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRedesConocimientoStore } from "../stores/RedesConocimiento.js";
+import { useProgramasFormacionStore } from "../stores/programasformacion.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useRedes = useRedesConocimientoStore();
+const usePrograma = useProgramasFormacionStore();
 const useLogin = useLoginStore()
-let red = ref([]);
-let alert = ref(false)
-let check = ref("")
-let r = ref("")
-let bd = ref(false)
-let indice = ref(null)
 const router = useRouter();
+const loading = ref(false);
+const filter = ref("");
+let red = ref([]);
+let alert = ref(false);
+let check = ref("");
+let r = ref("");
+let bd = ref(false);
+let indice = ref(null);
 let codigo = ref("");
 let denominacion = ref("");
 
@@ -98,13 +110,26 @@ let columns = [
     { name: "opciones", label: "⚫⚫⚫", align: "center", field: "opciones" },
 ];
 
-function AbrirRed() {
-    sessionStorage.setItem('useRed', true);
-    router.push("/programas")
-}
+async function AbrirRed(props) {
+    let IdRed = props.row._id;
+    console.log(IdRed);
 
-const loading = ref(false);
-const filter = ref("");
+    // Obtener los programas de formación
+    let programas = await usePrograma.getProgramasFormacion(useLogin.token);
+    let proga = programas.data.ProgramasFormacion;
+
+    // Filtrar el programa de formación con el mismo ID de red
+    let programa = proga.find(p => p.red === IdRed);
+    console.log(programa.red);
+
+    if (programa.red === IdRed) {
+        sessionStorage.setItem('useRed', true);
+        sessionStorage.setItem('programa', JSON.stringify(programa.red));
+        router.push("/programas");
+    } else {
+        console.log("No se encontró un programa de formación con el ID de red especificado.");
+    }
+}
 
 async function obtenerredes() {
     load.value = true
@@ -164,7 +189,7 @@ function agregar() {
 }
 
 onMounted(async () => {
-    await obtenerredes();
+    obtenerredes();
 
 });
 </script>

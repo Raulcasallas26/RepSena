@@ -12,7 +12,7 @@ export const useUsuariosStore = defineStore(
                     formData.append(key, info[key])
                 }
                 formData.append('curriculum', curriculum)
-                let res = await axios.post(`${urlBackend}/Usuarios`, formData, {
+                let res = await axios.post(`${urlBackend}/usuarios`, formData, {
                     headers: { "content-Type": "multipart/form-data" }
                 })
                 Notify.create({
@@ -40,7 +40,7 @@ export const useUsuariosStore = defineStore(
         const getUsuarios = async (token) => {
             try {
                 let header = { headers: { "x-token": token } }
-                let res = await axios.get(`${urlBackend}/Usuarios`, header)
+                let res = await axios.get(`${urlBackend}/usuarios`, header)
                 return res
             } catch (error) {
                 console.log("hay un error en el get");
@@ -63,7 +63,7 @@ export const useUsuariosStore = defineStore(
                 formData.append("curriculum", curriculum);
                 formData.append("RolUsuario", RolUsuario);
                 formData.append("RedConocimiento", RedConocimiento);
-                let res = await axios.put(`${urlBackend}/Usuarios/${id}`, formData, {
+                let res = await axios.put(`${urlBackend}/usuarios/${id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data", },
                 })
                 Notify.create({
@@ -88,7 +88,7 @@ export const useUsuariosStore = defineStore(
         }
         const activarUsuarios = async (id) => {
             try {
-                let res = await axios.put(`${urlBackend}/Usuarios/estado/${id}`)
+                let res = await axios.put(`${urlBackend}/usuarios/estado/${id}`)
                 return res.data
             } catch (error) {
                 console.log("hay un error en activarUser");

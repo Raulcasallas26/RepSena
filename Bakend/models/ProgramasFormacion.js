@@ -6,6 +6,7 @@ const ProgramasFormacionSchema = new mongoose.Schema({
     estado: { type: Boolean, default: true },
     niveldeformacion:{type: String},
     archivo:{type: String},
+    nomDoc:{type: String},
 })
 
 export default mongoose.model("programasFormacion", ProgramasFormacionSchema)

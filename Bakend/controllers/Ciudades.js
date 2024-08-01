@@ -23,13 +23,13 @@ const httpCiudades = {
     },
 
     postCiudades: async (req, res) => {
-        const { nombre, CodigoDaneCiudad, region, departamento, CodigoDaneDepartamento} = req.body;
+        const { nombre, CodigoDaneCiudad, region, departamento, CodigoDaneDepartamento } = req.body;
         const Ciudades = new CiudadesModel({
-          nombre,
-          CodigoDaneCiudad, 
-          region,
-          departamento,
-          CodigoDaneDepartamento
+            nombre,
+            CodigoDaneCiudad,
+            region,
+            departamento,
+            CodigoDaneDepartamento
         });
 
         try {

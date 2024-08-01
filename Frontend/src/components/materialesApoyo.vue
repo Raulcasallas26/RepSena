@@ -128,6 +128,8 @@ import { load } from "../routes/direccion.js"
 const useMaterialApoyo = useMaterialesApoyoStore();
 const useLogin = useLoginStore()
 const router = useRouter();
+const cardStates = ref({});
+const isRotated = ref({});
 let nombreArchivo = ref("");
 let alert = ref(false);
 let bd = ref(false);
@@ -279,8 +281,6 @@ async function editar() {
   }
 }
 
-const cardStates = ref({});
-const isRotated = ref({});
 const toggleDetails = (index) => {
   cardStates.value[index] = !cardStates.value[index];
   isRotated.value[index] = !isRotated.value[index];

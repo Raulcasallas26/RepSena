@@ -71,6 +71,13 @@
             <q-item-section>Ambientes de Formación</q-item-section>
           </q-item>
 
+          <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple to="/ciudades">
+            <q-item-section avatar>
+              <q-icon name="place" />
+            </q-item-section>
+            <q-item-section>Ciudades</q-item-section>
+          </q-item>
+
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/materialesApoyo">
             <q-item-section avatar>
               <q-icon name="library_books" />
@@ -241,6 +248,13 @@
             <q-item-section>Ambientes de Formación</q-item-section>
           </q-item>
 
+          <q-item clickable v-if="useLogin.rol === 'Super' || useLogin.usestado === true" v-ripple to="/ciudades">
+            <q-item-section avatar>
+              <q-icon name="place" />
+            </q-item-section>
+            <q-item-section>Ciudades</q-item-section>
+          </q-item>
+
           <q-item clickable v-if="useLogin.rol === 'Super'" v-ripple to="/materialesApoyo">
             <q-item-section avatar>
               <q-icon name="library_books" />
@@ -391,6 +405,8 @@ function cerrar() {
   useLogin.logout();
   sessionStorage.setItem('usestado', JSON.stringify(false));
   sessionStorage.setItem('useRed', JSON.stringify(false));
+  sessionStorage.setItem('programa', JSON.stringify (""));
+  sessionStorage.setItem('Desarrollo', JSON.stringify (""));
   console.log("ce cerro la sesion");
   useLogin.inicio = false;
   window.location.reload();

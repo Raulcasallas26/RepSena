@@ -199,13 +199,38 @@ let r = ref(null)
 let check = ref("");
 const VerDoc = ref(false);
 const documentUrl = ref("");
+let hasReloaded = false;
+
+function refresccar() {
+    if (!hasReloaded) {
+        window.location.reload();
+        hasReloaded = true;
+    }
+}
 
 async function ListarDesarrollo() {
     load.value = true;
-    let Desarrollo = await useDesarrolloCurricular.getDesarrolloCurricular();
-    console.log(Desarrollo);
-    desarrolloCur.value = Desarrollo.data.Desarrollo;
-    load.value = false;
+
+    // Obtener los programas de formación
+    let programas = await useDesarrolloCurricular.getDesarrolloCurricular(useLogin.token);
+    desarrolloCur.value = programas.data.Desarrollo;
+    console.log(desarrolloCur.value);
+
+    // Obtener el ID de red del sessionStorage
+    let idRedSesion = sessionStorage.getItem('Desarrollo');
+    console.log(idRedSesion);
+
+    // Filtrar los programas de formación por el ID de red del sessionStorage
+    if (idRedSesion) {
+        try {
+            let redSesion = JSON.parse(idRedSesion);
+            desarrolloCur.value = desarrolloCur.value.filter(p => JSON.stringify(p.Programa) === JSON.stringify(redSesion));
+            console.log(desarrolloCur.value);
+        } catch (error) {
+            console.error('Error al parsear el ID de red del sessionStorage:', error);
+        }
+    }
+    load.value = false;;
 }
 
 async function ListarGuias() {
@@ -315,16 +340,16 @@ function AbrirMatriz(Desarrollo) {
     VerDoc.value = true;
     nextTick(() => {
         const iframe = document.querySelector('iframe');
-    if (iframe) {
-        iframe.onload = () => {
-            // Enviar un mensaje al iframe una vez que haya cargado
-            iframe.contentWindow.postMessage('resize', '*');
-        };
-    } else {
-        console.error('El iframe no se encontró en el DOM');
-    }
+        if (iframe) {
+            iframe.onload = () => {
+                // Enviar un mensaje al iframe una vez que haya cargado
+                iframe.contentWindow.postMessage('resize', '*');
+            };
+        } else {
+            console.error('El iframe no se encontró en el DOM');
+        }
     });
-    
+
 }
 
 
@@ -333,16 +358,16 @@ function AbrirProyecto(Desarrollo) {
     VerDoc.value = true;;
     nextTick(() => {
         const iframe = document.querySelector('iframe');
-    if (iframe) {
-        iframe.onload = () => {
-            // Enviar un mensaje al iframe una vez que haya cargado
-            iframe.contentWindow.postMessage('resize', '*');
-        };
-    } else {
-        console.error('El iframe no se encontró en el DOM');
-    }
+        if (iframe) {
+            iframe.onload = () => {
+                // Enviar un mensaje al iframe una vez que haya cargado
+                iframe.contentWindow.postMessage('resize', '*');
+            };
+        } else {
+            console.error('El iframe no se encontró en el DOM');
+        }
     });
-    
+
 }
 
 function AbrirPlaneacion(Desarrollo) {
@@ -350,16 +375,16 @@ function AbrirPlaneacion(Desarrollo) {
     VerDoc.value = true;
     nextTick(() => {
         const iframe = document.querySelector('iframe');
-    if (iframe) {
-        iframe.onload = () => {
-            // Enviar un mensaje al iframe una vez que haya cargado
-            iframe.contentWindow.postMessage('resize', '*');
-        };
-    } else {
-        console.error('El iframe no se encontró en el DOM');
-    }
+        if (iframe) {
+            iframe.onload = () => {
+                // Enviar un mensaje al iframe una vez que haya cargado
+                iframe.contentWindow.postMessage('resize', '*');
+            };
+        } else {
+            console.error('El iframe no se encontró en el DOM');
+        }
     });
-    
+
 }
 
 function vistaDoc() {

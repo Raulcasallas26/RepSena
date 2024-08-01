@@ -30,9 +30,9 @@ export const useDesarrolloCurricularStore = defineStore(
             }
         }
 
-        const getDesarrolloCurricular = async () => {
+        const getDesarrolloCurricular = async (token) => {
             try {
-                let header = { headers: {  } }
+                let header = { headers: { "x-token": token } }
                 let res = await axios.get(`${urlBackend}/desarrolloCurricular`, header)
                 return res
             } catch (error) {

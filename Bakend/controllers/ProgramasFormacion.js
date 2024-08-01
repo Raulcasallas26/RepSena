@@ -24,7 +24,7 @@ const httpProgramasFormacion = {
         });
 
         try {
-            const { denominacion, version, niveldeformacion
+            const { denominacion, version, niveldeformacion, nomDoc
             } = req.body;
             const { archivo } = req.files;
             if (archivo) {
@@ -48,6 +48,7 @@ const httpProgramasFormacion = {
                         version: version,
                         niveldeformacion: niveldeformacion,
                         archivo: result.url,
+                        nomDoc: nomDoc,
                     });
                     const ProgramaCreado = await nuevoProgramaFormacion.save();
                     res.status(201).json(ProgramaCreado);
@@ -59,29 +60,6 @@ const httpProgramasFormacion = {
         }
     },
 
-
-
-    // putProgramasFormacion: async (req, res) => {
-    //     const { id } = req.params;
-    //     const { denominacion, version, estado, niveldeformacion, archivo } =
-    //         req.body;
-    //     const programas = await ProgramasFormacionModel.findByIdAndUpdate(
-    //         id,
-    //         {
-    //             denominacion,
-    //             version,
-    //             estado,
-    //             niveldeformacion,
-    //             archivo
-    //         },
-    //         { new: true }
-    //     );
-    //     res.json({
-    //         msg: "ok",
-    //         programas,
-    //     });
-    // },
-
     putProgramasFormacion: async (req, res) => {
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_NAME,
@@ -92,7 +70,7 @@ const httpProgramasFormacion = {
         try {
             const { id } = req.params;
             const {
-                denominacion, version, niveldeformacion } = req.body;
+                denominacion, version, niveldeformacion, nomDoc } = req.body;
             const buscarCodigo = await ProgramasFormacionModel.findOne({ denominacion: denominacion });
             if (buscarCodigo && buscarCodigo._id.toString() !== id) {
                 return res
@@ -103,6 +81,7 @@ const httpProgramasFormacion = {
                 denominacion: denominacion,
                 version: version,
                 niveldeformacion: niveldeformacion,
+                nomDoc: nomDoc
             };
             if (req.files && req.files.archivo) {
                 const archivo = req.files.archivo;

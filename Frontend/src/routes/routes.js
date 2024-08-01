@@ -1,24 +1,25 @@
-import home from "../components/home.vue"
-import login from "../components/login.vue"
+import home from "../components/home.vue";
+import login from "../components/login.vue";
 import guias from "../components/guias.vue";
 import roles from "../components/rolesusu.vue";
-import usuarios from "../components/usuarios.vue"
-import ambientes from "../components/ambiente.vue"
-import programas from "../components/programas.vue"
-import proyectos from "../components/proyectos.vue"
-import centrosforma from "../components/centroforma.vue"
-import instructores from "../components/instructores.vue"
-import investigacion from "../components/investigacion.vue"
-import configuracion from "../components/configuracion.vue"
-import equipoEjecutor from "../components/EquipoEjecutor.vue"
-import nivelesforma from "../components/NivelesFormacion.vue"
-import redConocimiento from "../components/redConocimiento.vue"
+import usuarios from "../components/usuarios.vue";
+import ciudades from "../components/ciudades.vue";
+import ambientes from "../components/ambiente.vue";
+import programas from "../components/programas.vue";
+import proyectos from "../components/proyectos.vue";
+import centrosforma from "../components/centroforma.vue";
+import instructores from "../components/instructores.vue";
+import investigacion from "../components/investigacion.vue";
+import configuracion from "../components/configuracion.vue";
+import equipoEjecutor from "../components/EquipoEjecutor.vue";
+import nivelesforma from "../components/NivelesFormacion.vue";
+import redConocimiento from "../components/redConocimiento.vue";
 import materialesforma from "../components/materialesforma.vue";
-import materialesApoyo from "../components/materialesApoyo.vue"
+import materialesApoyo from "../components/materialesApoyo.vue";
 import registroCalificado from "../components/registroCalificado.vue";
-import retroalimentacionRed from "../components/retroalimentacionRed.vue"
-import desarrolloCurricular from "../components/DesarrolloCurricular.vue"
-import instrumentosEvaluacion from "../components/instrumentosEvaluacion.vue"
+import retroalimentacionRed from "../components/retroalimentacionRed.vue";
+import desarrolloCurricular from "../components/DesarrolloCurricular.vue";
+import instrumentosEvaluacion from "../components/instrumentosEvaluacion.vue";
 import { createRouter, createWebHashHistory } from "vue-router"
 import { useLoginStore } from "../stores/login";
 
@@ -52,6 +53,7 @@ const routes = [
     { path: "/roles", component: roles, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/guias", component: guias, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/usuarios", component: usuarios, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
+    { path: "/ciudades", component: ciudades, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/programas", component: programas, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/ambientes", component: ambientes, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/proyectos", component: proyectos, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },

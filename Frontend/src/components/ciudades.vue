@@ -184,12 +184,12 @@
 import { ref, onMounted, computed, nextTick } from "vue";
 import { Notify } from "quasar"
 import { useRedesConocimientoStore } from "../stores/RedesConocimiento.js";
-import { useUsuariosStore } from "../stores/usuarios.js";
+import { useCiudadesStore } from "../stores/Ciudades.js";
 import { useLoginStore } from "../stores/login.js"
 import { useRolesUsuariosStore } from "../stores/RolesUsuarios.js";
 import { load } from "../routes/direccion.js"
 const useRedCon = useRedesConocimientoStore();
-const useUsuario = useUsuariosStore();
+const useCiudades = useCiudadesStore();
 const useRoles = useRolesUsuariosStore()
 const useLogin = useLoginStore()
 let alert = ref(false);
@@ -269,7 +269,7 @@ const filter = ref("");
 
 async function listarUsuarios() {
     load.value = true
-    let usuarios = await useUsuario.getUsuarios(useLogin.token);
+    let usuarios = await useCiudades.getCiudades(useLogin.token);
     console.log(usuarios);
     user.value = usuarios.data.Usuarios;
     load.value = false

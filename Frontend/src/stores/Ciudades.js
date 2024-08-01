@@ -2,11 +2,24 @@ import { defineStore } from 'pinia'
 import axios from "axios"
 import { urlBackend } from '../routes/direccion.js'
 import { ref } from "vue"
+import { Notify } from "quasar"
 export const useCiudadesStore = defineStore(
     "Ciudades", () => {
+
+        const getCiudades = async (token) => {
+            try {
+                let header = { headers: { "x-token": token } }
+                let res = await axios.get(`${urlBackend}/ciudades`, header)
+                return res
+            } catch (error) {
+                console.log("hay un error en el get");
+                return error
+            }
+        }
+
         const addCiudades = async (info) => {
             try {
-                let res = await axios.post(`${urlBackend}/Ciudades`, info)
+                let res = await axios.post(`${urlBackend}/ciudades`, info)
                 Notify.create({
                     color: "positive",
                     message: "Registro de la Ciudad exitoso",
@@ -28,18 +41,9 @@ export const useCiudadesStore = defineStore(
             }
         }
 
-        const getCiudades = async () => {
-            try {
-                let res = await axios.get(`${urlBackend}/Ciudades`)
-                return res
-            } catch (error) {
-                console.log("hay un error en el get");
-                return error
-            }
-        }
         const editCiudades = async (id, info) => {
             try {
-                let res = await axios.put(`${urlBackend}/Ciudades/${id}`, info)
+                let res = await axios.put(`${urlBackend}/ciudades/${id}`, info)
                 Notify.create({
                     color: "positive",
                     message: "Edicion de la Ciudad exitoso",

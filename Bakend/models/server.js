@@ -38,7 +38,7 @@ class Server {
         this.app.use('/color', color)
         this.app.use('/login', login);
         this.app.use('/reset', reset)
-        this.app.use('/ciudad', ciudades);
+        this.app.use('/ciudades', ciudades);
         this.app.use('/usuarios', usuarios);
         this.app.use('/Proyectos', proyecto);
         this.app.use('/configuracion', configuracion);

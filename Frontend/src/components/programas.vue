@@ -4,11 +4,12 @@
       <q-linear-progress ark rounded indeterminate color="green" />
     </div>
     <div v-else>
-      <q-table class="tabla" flat bordered title="Treats" :rows="proga" :columns="columns" row-key="id" :filter="filter"
-        :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="20"
-        :virtual-scroll-sticky-size-start="20" :rows-per-page-options="[15]" @row-click="AbrirPrograma()">>
+      <q-table class="tabla" flat bordered title="Treats" :rows="Porgrama" :columns="columns" row-key="id"
+        :filter="filter" :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="20"
+        :virtual-scroll-sticky-size-start="20" :rows-per-page-options="[15]">>
         <template v-slot:top>
-          <q-btn style="background-color: green; color: white" :disable="loading" label="Agregar" @click="alert = true" />
+          <q-btn style="background-color: green; color: white" :disable="loading" label="Agregar"
+            @click="alert = true" />
           <div style="margin-left: 5%" class="text-h4">Programas De Formacion</div>
           <q-space />
           <q-input borderless dense debounce="300" color="primary" v-model="filter"
@@ -19,10 +20,18 @@
           </q-input>
         </template>
 
+        <template v-slot:body-cell="props">
+          <q-td :props="props">
+            <div @click="AbrirPrograma(props)">
+              {{ props.value }}
+            </div>
+          </q-td>
+        </template>
+
         <template v-slot:body-cell-archivo="props">
           <q-td :props="props">
             <q-spinner-ios v-if="loading == true" color="green" size="2em" :thickness="10" />
-            <p><strong><a :href="props.row.archivo" target="_blank"> Documento</a></strong> </p>
+            <p><strong><a :href="props.row.nomDoc" target="_blank"> {{ props.row.nomDoc }} </a></strong> </p>
           </q-td>
         </template>
 
@@ -54,7 +63,7 @@
             <div class="text-h4" v-else>Editar Programa</div>
           </q-card-section>
           <div style="margin-left: auto;    margin-bottom: auto;">
-            <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" />
+            <q-btn @click="limpiarFormulario()" class="close-button" icon="close" v-close-popup />
           </div>
         </div>
         <q-card-section class="q-pt-none" id="card">
@@ -67,12 +76,17 @@
                 <q-input v-model="version" label="Versión" :rules="[(val) => !!val || 'Campo requerido']" />
               </div>
               <div class="q-gutter-md">
-                <q-select v-model="niveldeformacion" :options="opciones" label="Selecciona un nivel de formacion "
+                <q-select v-model="nivelForma" :options="nivelFormacion" label="Selecciona un nivel de formacion "
                   :rules="[(val) => !!val || 'Campo requerido']" />
               </div>
-              <q-card-section>
-                <input type="file" @change="subir_archivo">
-              </q-card-section>
+              <div class="q-gutter-md">
+                <div class="q-gutter-md custom-file-container">
+                  <input id="file-upload" type="file" @change="urlDoc" class="custom-file-input">
+                  <label for="file-upload" class="custom-file-label">
+                    <span>{{ nombreArchivo || (legaNom || 'Seleccionar archivo') }}</span>
+                  </label>
+                </div>
+              </div>
             </q-card-section>
             <q-card-section>
               <div role="alert" style="
@@ -101,50 +115,115 @@
 
 <script setup>
 import { ref, onMounted, defineExpose } from "vue";
+import { useRouter } from 'vue-router';
 import { useProgramasFormacionStore } from "../stores/programasformacion.js";
+import { useNivelesFormacionStore } from "../stores/Nivel_Formacion.js";
+import { useDesarrolloCurricularStore } from "../stores/DesarrolloCurricular.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useProgramas = useProgramasFormacionStore();
+const useDesarrollo = useDesarrolloCurricularStore();
+const useNivel = useNivelesFormacionStore();
 const useLogin = useLoginStore()
-let proga = ref([]);
+const router = useRouter();
+const filter = ref("");
+const loading = ref(false);
+let Porgrama = ref([]);
 let check = ref("");
 let bd = ref(false);
 let r = ref("");
-let niveldeformacion = ref("");
+let nivelFormacion = ref([])
+let nivelForma = ref("");
+let nombreArchivo = ref("")
+let nomDoc = ref("")
+let legaNom = ref("")
 let alert = ref(false);
+let nive = ref("")
 let archivo = ref("");
 let denominacion = ref("");
 let version = ref("");
 let indice = ref(null);
 
-function subir_archivo(event) {
-  archivo.value = event.target.files[0]
-  console.log(archivo.value);
-}
-
-function AbrirPrograma() {
-  sessionStorage.setItem('usestado', true);
-  window.location.reload(); 
-}
-
 let columns = [
   { name: "denominacion", label: "Denominacion", align: "center", field: "denominacion", },
   { name: "version", label: "Version", align: "center", field: "version" },
-  { name: "nivel de formacion", label: "Nivel de formacion", align: "center", field: "niveldeformacion" },
-  { name: "archivo", label: "Documentos", align: "center", field: "archivo" },
+  { name: "nivel de formacion", label: "Nivel de formacion", align: "center", field: "nivelForma" },
+  { name: "archivo", label: "Documento", align: "center", field: "archivo" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
-  { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+  { name: "opciones", label: "Opciones", align: "center",  },
 ];
-const filter = ref("");
-const loading = ref(false);
 
-async function obtenerformacion() {
-  load.value = true
-  let programas = await useProgramas.getProgramasFormacion(useLogin.token);
-  console.log(programas);
-  proga.value = programas.data.ProgramasFormacion;
-  load.value = false
+const urlDoc = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    nombreArchivo.value = file.name;
+    nomDoc.value = nombreArchivo.value
+    archivo.value = file;
+  } else {
+    nombreArchivo.value = '';
+    archivo.value = null;
+  }
+};
+
+async function AbrirPrograma(props) {
+  let IdPrograma = props.row._id;
+  console.log(IdPrograma);
+  // Obtener los programas de formación
+  let Desarrollos = await useDesarrollo.getDesarrolloCurricular(useLogin.token);
+  let Desarrollo = Desarrollos.data.Desarrollo;
+
+  // Filtrar el programa de formación con el mismo ID de red
+  let DesarrolloCur = Desarrollo.find(p => p.Programa === IdPrograma);
+  console.log(DesarrolloCur.Programa);
+
+  if (DesarrolloCur.Programa === IdPrograma) {
+    sessionStorage.setItem('usestado', true);
+    sessionStorage.setItem('Desarrollo', JSON.stringify(DesarrolloCur.Programa));
+    router.push("/desarrolloCurricular");
+  } else {
+    console.log("No se encontró un DesarrolloCur de formación con el ID de red especificado.");
+  }
 }
+
+async function ListarNiveles() {
+    load.value = true
+    let Guias = await useNivel.getNivelesFormacion(useLogin.token);
+    console.log(Guias);
+    nive.value = Guias.data.Nivel;
+    nivelFormacion.value = nive.value.map(item => ({
+        value: item.denominacion,
+        label: item.denominacion,
+    }))
+    console.log(nivelFormacion.value);
+    load.value = false
+}
+
+async function ListarPorgrama() {
+  load.value = true;
+
+  // Obtener los programas de formación
+  let programas = await useProgramas.getProgramasFormacion(useLogin.token);
+  Porgrama.value = programas.data.ProgramasFormacion;
+  console.log(Porgrama.value);
+
+  // Obtener el ID de red del sessionStorage
+  let idRedSesion = sessionStorage.getItem('programa');
+  console.log(idRedSesion);
+
+  // Filtrar los programas de formación por el ID de red del sessionStorage
+  if (idRedSesion) {
+    try {
+      let redSesion = JSON.parse(idRedSesion);
+      Porgrama.value = Porgrama.value.filter(p => JSON.stringify(p.red) === JSON.stringify(redSesion));
+      console.log(Porgrama.value);
+    } catch (error) {
+      console.error('Error al parsear el ID de red del sessionStorage:', error);
+    }
+  }
+
+  load.value = false;
+}
+
 function mostrarAlerta(mensaje) {
   alert.value = true;
   check.value = mensaje;
@@ -154,7 +233,7 @@ async function validarYGuardar() {
     mostrarAlerta("La Denominacion es obligatoria");
   } else if (!version.value) {
     mostrarAlerta("La version es obligatoria");
-  } else if (!niveldeformacion.value) {
+  } else if (!nivelForma.value) {
     mostrarAlerta("el Nivel de formacion es oblogatorio");
   } else {
     guardar();
@@ -167,15 +246,16 @@ async function guardar() {
     let res = await useProgramas.addProgramasFormacion({
       denominacion: denominacion.value,
       version: version.value,
-      niveldeformacion: niveldeformacion.value,
+      niveldeformacion: nivelForma.value.value,
       archivo: archivo.value,
+      nomDoc: nomDoc.value
     });
 
     if (res.status === 201) {
       console.log(res);
       console.log("Se guardó un nuevo Programa");
       alert.value = false;
-      obtenerformacion();
+      ListarPorgrama();
       limpiarFormulario();
       // Cierra la alerta
     } else {
@@ -208,7 +288,7 @@ async function validareditar() {
     mostrarAlerta("La Denominacion es obligatoria");
   } else if (!version.value) {
     mostrarAlerta("La version es obligatoria");
-  } else if (!niveldeformacion.value) {
+  } else if (!nivelForma.value) {
     mostrarAlerta("el Nivel de formacion es oblogatorio");
   } else if (!archivo.value) {
     mostrarAlerta("el Diseño curricular es oblogatorio");
@@ -217,36 +297,6 @@ async function validareditar() {
   }
 }
 
-async function editarPrograma() {
-  loading.value = true;
-  try {
-    let res = await useProgramas.editProgramasFormacion(
-      indice.value,
-      denominacion.value,
-      version.value,
-      niveldeformacion.value,
-      archivo.value,
-    );
-    if (res.status === 201) {
-      console.log("Se guardó un nuevo usuario");
-      alert.value = false;
-      bd.value = false;
-      obtenerformacion();
-      limpiarFormulario();
-      // Cierra la alerta
-    } else {
-      console.error("Error al guardar el usuario");
-      // Puedes mostrar un mensaje de error aquí si es necesario
-    }
-  } catch (error) {
-    console.error("Error en la solicitud:", error);
-    // Puedes manejar errores de red u otros errores aquí si es necesario
-  } finally {
-    loading.value = false;
-  }
-}
-
-
 function edito(props) {
   alert.value = true;
   bd.value = true;
@@ -254,41 +304,68 @@ function edito(props) {
   indice.value = r.value._id;
   denominacion.value = r.value.denominacion;
   version.value = r.value.version;
-  niveldeformacion.value = r.value.niveldeformacion;
+  nivelForma.value = r.value.niveldeformacion;
   archivo.value = r.value.archivo;
+  legaNom.value = nomDoc.value
+  console.log(legaNom.value);
+}
+
+async function editarPrograma() {
+    loading.value = true;
+    try {
+        console.log("hola estoy editando");
+
+        let ProgramaData = {
+            denominacion: denominacion.value,
+            version: version.value,
+            niveldeformacion: nivelForma.value,
+            archivo: archivo.value,
+            nomDoc: nomDoc.value,
+        }
+
+        if (nivelForma.value && nivelForma.value.value) {
+            ProgramaData.nivelForma = nivelForma.value.value
+        }
+
+        let r = await useNivel.editNivelesFormacion(
+            indice.value,
+            ProgramaData.denominacion,
+            ProgramaData.version,
+            ProgramaData.niveldeformacion,
+            ProgramaData.archivo,
+            ProgramaData.nomDoc,
+        );
+        console.log("se insertaron los datos");
+        console.log(r.status, r);
+        if (r.status === 201) {
+            console.log(r);
+            console.log("Se edito el Programa con exito");
+            ListarPorgrama();
+            limpiarFormulario();
+            alert.value = false; // Cierra la alerta
+        } else {
+            console.error("Error al editar el Programa");
+            // Puedes mostrar un mensaje de error aquí si es necesario
+        }
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        console.log(error);
+        // Puedes manejar errores de red u otros errores aquí si es necesario
+    } finally {
+        loading.value = false;
+    }
 }
 
 function limpiarFormulario() {
   console.log("limpiando formulario");
   denominacion.value = "";
   version.value = "";
-  opciones.value = "";
-  niveldeformacion.value = "";
+  nivelForma.value = "";
   archivo.value = "";
   check.value = ""
   alert.value = false
   bd.value = false
 }
-
-// Variable para almacenar el nombre del archivo seleccionado
-
-const abrirSelectorDeArchivos = () => {
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.style.display = "none";
-  fileInput.addEventListener("change", handleFileSelection);
-  document.body.appendChild(fileInput);
-  fileInput.click();
-};
-
-const handleFileSelection = (event) => {
-  const selectedFile = event.target.files[0];
-  if (selectedFile) {
-    archivo.value = selectedFile.name;
-    alert(`Archivo seleccionado: ${selectedFile.name}`);
-  }
-  event.target.remove(); // Elimina el input de tipo file después de su uso
-};
 
 function cerrar() {
   bd.value = false;
@@ -300,8 +377,8 @@ function cerrar() {
 
 //fin
 onMounted(() => {
-  obtenerformacion();
-  //obtenerOpcionesDesdeBaseDeDatos();
+  ListarPorgrama();
+  ListarNiveles();
 });
 </script>
 
@@ -364,6 +441,54 @@ onMounted(() => {
     transform: translateX(-20px);
   }
 }
+
+.custom-file-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-file-input {
+  width: 100%;
+  height: 40px;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.custom-file-label {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.custom-file-label:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
+}
+
+.custom-file-label:active {
+  background-color: #d6d8db;
+  border-color: #c6c8ca;
+}
+
+.custom-file-input:focus+.custom-file-label {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label span {
+  pointer-events: none;
+}
+
 
 /* Aplica las transiciones y animaciones */
 .close-button {

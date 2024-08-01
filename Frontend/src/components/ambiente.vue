@@ -17,16 +17,16 @@
     <div>
       <!-- Itera a través de los ambientes y muestra cada uno en un card -->
       <div v-for="(ambiente, index) in ambientess" :key="index">
-        <div class="card">
+        <div class="card" @click="toggleDetails(index)">
           <div class="top-half">
-            <div class="info" @click="toggleDetails(index)">
+            <div class="info" >
               <p><strong>Código:</strong> {{ ambiente.codigo }}</p>
               <p><strong>Nombre:</strong> {{ ambiente.nombre }}</p>
               <p><strong>Tipo:</strong> {{ ambiente.tipo }}</p>
               <strong>Estado: </strong>
               <span class="text-green" v-if="ambiente.estado === true">
                 Activo</span>
-              <span class="text-orange" v-else> Ocuapado</span>
+              <span class="text-red" v-else> Inactivo </span>
             </div>
             <div class="buttons">
               <button @click="toggleDetails(index)" class="rotate-button">
@@ -43,23 +43,18 @@
             <q-btn id="boton-estado" class="q-pa-r" color="green" outline @click="activar(ambiente)"
               v-if="ambiente.estado === false">✅Activar
             </q-btn>
-            <q-btn class="q-pa-r" color="orange" outline @click="activar(ambiente)" v-else>⚠ Ocupar</q-btn>
+            <q-btn class="q-pa-r" color="red" outline @click="activar(ambiente)" v-else>❌ Desactivar</q-btn>
           </div>
           <q-slide-transition appear>
             <div v-show="cardStates[index]">
-              <button @click="toggleDetails(index)" class="rotate-button">
-                <div class="arrow-icon" :class="{ rotate: isRotated[index] }">
-                  <img src="https://cdn-icons-png.flaticon.com/512/32/32195.png" alt="Arrow" class="arrow-icon" />
-                </div>
-              </button>
               <div class="bottom-half">
                 <div class="info">
                   <p style="column-gap: 30px; ">
                     <strong>Descripción:</strong> {{ ambiente.descripcion }}
                   </p>
                   <p><strong>Documentos:</strong> {{ ambiente.documentos }}</p>
-                  <p>
-                    <strong>ID Centro de Formación:</strong>
+                  <p @click="abrirCentroFormacion()" style="cursor: pointer;">
+                    <strong>Centro de Formación:</strong>
                     {{ ambiente.idCentroDeFormacion }}
                   </p>
                 </div>
@@ -98,7 +93,7 @@
                 <q-input v-model="Descripcion" label="Descripcion" :rules="[(val) => !!val || 'Campo requerido']" />
               </div>
               <div class="q-gutter-md">
-                <q-select :rules="[(val) => !!val || 'Campo requerido']" v-model="IdCentroFormacion" :options="opciones"
+                <q-select :rules="[(val) => !!val || 'Campo requerido']" v-model="IdCentroFormacion" :options="centros"
                   label="Selecciona una Id de Centro de Formacion" />
               </div>
               <div class="q-gutter-md">
@@ -136,14 +131,18 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useAmbientesFormacionStore } from "../stores/AmbientesFormacion.js";
-import { useNivelesFormacionStore } from "../stores/Nivel_Formacion.js";
+import { useCentrosFormacionStore } from "../stores/CentrosFormacion.js";
 import { useLoginStore } from "../stores/login.js"
 import { load } from "../routes/direccion.js"
 const useambiente = useAmbientesFormacionStore();
-const useNivel = useNivelesFormacionStore();
+const useCentros = useCentrosFormacionStore();
 const useLogin = useLoginStore()
+const router = useRouter();
 let ambientess = ref([]);
+let Cent = ref([]);
+let centros = ref([]);
 let modal = ref(false);
 let filter = ref("")
 let codigo = ref("");
@@ -156,12 +155,25 @@ let IdCentroFormacion = ref("");
 let archivoOEnlace = ref("");
 const loading = ref(false);
 
-async function obtenerformacion() {
-    let Niveles = await useNivel.getNivelesFormacion(useLogin.token);
-    console.log(Niveles);
-    formacion.value = Niveles.data.Nivel;
+async function ListarAmbientes() {
+  load.value = true
+  let Formacion = await useambiente.getAmbientesFormacion(useLogin.token);
+  ambientess.value = Formacion.data.AmbientesFormacion;
+  load.value = false
 }
 
+async function ListarCentros() {
+  load.value = true
+  let CentrosForm = await useCentros.getCentrosFormacion(useLogin.token);
+  console.log(CentrosForm);
+  Cent.value = CentrosForm.data.InstrumentosEvaluacion;
+  centros.value = Cent.value.map(item => ({
+    value: item.nombre,
+    label: item.nombre,
+  }))
+  console.log(centros.value);
+  load.value = false
+}
 
 function mostrarAlerta(mensaje) {
   alert.value = true;
@@ -194,7 +206,7 @@ async function agregarAmbiente() {
     idCentroDeFormacion: IdCentroFormacion.value,
     documentos: archivoOEnlace.value,
   });
-  getAmbientesformacion();
+  ListarAmbientes();
   loading.value = false
 }
 
@@ -217,12 +229,11 @@ async function activar(ambiente) {
   console.log(est);
 }
 
-async function getAmbientesformacion() {
-  load.value = true
-  let Formacion = await useambiente.getAmbientesFormacion(useLogin.token);
-  ambientess.value = Formacion.data.AmbientesFormacion;
-  load.value = false
+function abrirCentroFormacion() {
+  sessionStorage.setItem('useRed', true);
+  router.push("/centroforma")
 }
+
 
 const cardStates = ref({});
 const isRotated = ref({});
@@ -337,7 +348,8 @@ function agregar() {
 }
 
 onMounted(async () => {
-  await getAmbientesformacion();
+  ListarAmbientes();
+  ListarCentros();
 });
 //editAmbientesFormacion   useambiente
 </script>

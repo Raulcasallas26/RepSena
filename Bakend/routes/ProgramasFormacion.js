@@ -15,6 +15,8 @@ const router = Router()
     check("denominacion").custom(validarUnicos.validarprogramaFormacion),
     check("version","la version es un campo obligatorio").trim().not().isEmpty(),
     check("niveldeformacion","el nivel de formacion es un campo obligatorio").trim().not().isEmpty(),
+    check("archivo").optional(),
+    check("nomDoc").optional(),
     validarResultados
   ], httpProgramasFormacion.postProgramasFormacion)
   
@@ -22,6 +24,8 @@ const router = Router()
     check("denominacion", "La denominacion es obligatoria").trim().not().isEmpty(),
     check("version","la version es un campo obligatorio").trim().not().isEmpty(),
     check("niveldeformacion","el nivel de formacion es un campo obligatorio").trim().not().isEmpty(),
+    check("archivo").optional(),
+    check("nomDoc").optional(),
     validarResultados
   ], httpProgramasFormacion.putProgramasFormacion)
   

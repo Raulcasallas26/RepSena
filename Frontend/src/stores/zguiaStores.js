@@ -5,6 +5,18 @@ import { ref } from "vue"
 import { Notify } from "quasar"
 export const useUsuariosStore = defineStore(
     "Usuarios", () => {
+        
+        const getUsuarios = async (token) => {
+            try {
+                let header = { headers: { "x-token": token } }
+                let res = await axios.get(`${urlBackend}/Usuarios`, header)
+                return res
+            } catch (error) {
+                console.log("hay un error en el get");
+                return error
+            }
+        }
+
         const addUsuarios = async (info, curriculum) => {
             try {
                 const formData = new FormData();
@@ -33,17 +45,6 @@ export const useUsuariosStore = defineStore(
                     position: "top",
                     timeout: 3000
                 })
-                return error
-            }
-        }
-
-        const getUsuarios = async (token) => {
-            try {
-                let header = { headers: { "x-token": token } }
-                let res = await axios.get(`${urlBackend}/Usuarios`, header)
-                return res
-            } catch (error) {
-                console.log("hay un error en el get");
                 return error
             }
         }
