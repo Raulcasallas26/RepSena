@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import axios from "axios"
 import { urlBackend } from '../routes/direccion.js'
 import { ref } from "vue"
+import { Notify } from "quasar"
 export const useCentrosFormacionStore = defineStore(
     "CentrosFormacion", () => {
         const addCentrosFormacion = async (info) => {

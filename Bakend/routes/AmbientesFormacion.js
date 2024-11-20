@@ -12,8 +12,8 @@ router.post("/", [
   check("nombre", "el nombre es obligatorio",).notEmpty().trim().isString(),
   check("tipo", "el tipo es obligatorio").notEmpty().trim().isString(),
   check("descripcion", "la descricion es obligatoria").notEmpty().trim().isString(),
-  check("documentos", "los documentos son obligatorios").notEmpty().trim().isString(),
-  check("idCentroDeFormacion", "el centro de formacion es obligatorio").notEmpty().trim().isString(),
+  check("documentos", ).optional(),
+  check("CentroDeFormacion", "el centro de formacion es obligatorio").notEmpty().trim().isString(),
   validarResultados
 ], httpAmbientesFormacion.postAmbientesFormacion)
 
@@ -21,8 +21,8 @@ router.put("/:id", [
   check("nombre", "el nombre es obligatorio",).notEmpty().trim().isString(),
   check("tipo", "el tipo es obligatorio").notEmpty().trim().isString(),
   check("descripcion", "la descricion es obligatoria").notEmpty().trim().isString(),
-  check("documentos", "los documentos son obligatorios").notEmpty().trim().isString(),
-  check("idCentroDeFormacion", "el centro de formacion es obligatorio").notEmpty().trim().isString(),
+  check("documentos", ).optional(),
+  check("CentroDeFormacion", "el centro de formacion es obligatorio").notEmpty().trim().isString(),
   validarResultados
 ], httpAmbientesFormacion.putAmbientesFormacion)
 

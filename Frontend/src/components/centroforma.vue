@@ -5,7 +5,7 @@
         :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="10"
         :virtual-scroll-sticky-size-start="10" :pagination="pagination" :rows-per-page-options="[15]"
         @virtual-scroll="onScroll">
-        <template v-slot:top>
+        <template v-slot:top> 
           <q-btn style="background-color: whitesmoke; color: white; filter: invert(1); margin-right: 10px;"
                 @click="goBack" label=""> <span style='font-size: 1.5rem;'>🔙</span> </q-btn>
           <q-btn style="background-color: green; color: white" :disable="loading" label="Agregar" @click="alert = true" />

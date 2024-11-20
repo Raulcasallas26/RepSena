@@ -1,4 +1,4 @@
-<template >
+ñ<template >
     <div class="q-pa-md">
         <div v-if="load == true">
             <q-linear-progress ark rounded indeterminate color="green" />

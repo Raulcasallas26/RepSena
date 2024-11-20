@@ -52,7 +52,7 @@ const routes = [
     { path: "/home", component: home, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/roles", component: roles, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/guias", component: guias, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
-    { path: "/usuarios", component: usuarios, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
+    { path: "/usuarios", component: usuarios, meta: { rol: ["Super", "Administrador"] }, beforeEnter: auth },
     { path: "/ciudades", component: ciudades, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/programas", component: programas, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },
     { path: "/ambientes", component: ambientes, meta: { rol: ["Super", "Gestor", "Administrador", "Instructor"] }, beforeEnter: auth },

@@ -4,7 +4,7 @@
             <q-linear-progress ark rounded indeterminate color="green" />
         </div>
         <div v-else>
-            <q-table flat bordered title="Treats" :rows="filteredUsers" :columns="columns" row-key="id" :filter="filter"
+            <q-table flat title="Treats"  :columns="columns" row-key="id" :filter="filter"
                 :loading="loading" table-header-class="" virtual-scroll :virtual-scroll-item-size="10"
                 :virtual-scroll-sticky-size-start="10" :rows-per-page-options="[15]">
                 <template v-slot:top>
@@ -68,55 +68,21 @@
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model="apellidos" label="Apellido"
+                                <q-input v-model="CidigoDaneCiudad" label="Apellido"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model.number="cedula" type="number" label="Cedula"
+                                <q-input v-model="region" type="number" label="Cedula"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model.number="telefono" type="number" label="Telefono"
+                                <q-input v-model="departamento" label="Nombre"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
                             <div class="q-gutter-md">
-                                <q-input v-model="email" type="email" suffix="Example@soy.sena.edu.co" label="E-mail"
-                                    :rules="[validarEmail]">
-
-                                    <template v-slot:append>
-                                        <q-icon name="mail" />
-                                    </template>
-                                </q-input>
-                            </div>
-                            <div class="q-gutter-md" v-if="bd !== true">
-                                <q-input v-model="password" :type="isPwd ? 'password' : 'text'"
-                                    label="Ingresar password" :rules="[(val) => !!val || 'Campo requerido']">
-
-                                    <template v-slot:append>
-                                        <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
-                                            @click="isPwd = !isPwd" />
-                                    </template>
-                                </q-input>
-                            </div>
-                            <div class="q-gutter-md" v-if="bd === true">
-                                <q-input v-model="perfilProfesional" label="Perfil Profecional"
+                                <q-input v-model="CidigoDaneDepartamento" label="Apellido"
                                     :rules="[(val) => !!val || 'Campo requerido']" />
                             </div>
-                            <div class="q-gutter-md">
-                                <q-select v-model="RolUsuario" :rules="[(val) => !!val || 'Campo requerido']"
-                                    :options="opciones" label="Selecciona un Rol" @update:model-value="instru" />
-                            </div>
-                            <div class="q-gutter-md" v-if="instructor === true || r.RolUsuario === 'Instructor'">
-                                <q-select v-model="RedConocimiento" :rules="[(val) => !!val || 'Campo requerido']"
-                                    :options="RedCon" label="Red de conocimineto" />
-                            </div>
-                            <div class="q-gutter-md custom-file-container">
-                                <input type="file" @change="subir_curriculum" class="custom-file-input">
-                                <label for="file-upload" class="custom-file-label">
-                                    <span>{{ nombreArchivo || 'Seleccionar archivo' }}</span>
-                                </label>
-                            </div>
-                            <div></div>
                         </q-card-section>
                         <q-card-section>
                             <div role="alert"
@@ -134,46 +100,6 @@
                     <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
                     <q-btn flat label="Guardar" v-if="bd === false" @click="validarYGuardar" color="primary" />
                     <q-btn flat label="Editar Usuario" v-else @click="validaredit" color="primary" />
-                </q-card-actions>
-            </q-card>
-        </q-dialog>
-
-
-        <q-dialog v-model="detalle">
-            <q-card id="card" style="background-color: rgba(255, 255, 255, 0.959);">
-                <div style="display: flex;">
-                    <q-card-section>
-                        <div class="text-h4">Detalles de {{ nombre }}</div>
-                    </q-card-section>
-                    <div style="margin-left: auto; margin-bottom: auto;">
-                        <q-btn @click="toggleX, limpiarFormulario()" class="close-button" icon="close" v-close-popup />
-                    </div>
-                </div>
-
-                <q-card-section class="q-pt-none" id="card">
-                    <q-card flat bordered class="my-card" style="border-radius: 10px; ">
-                        <q-card-section class="q-pa-md">
-                            <p><strong style="font-size:large; ">Rol:</strong> {{ r.RolUsuario }}</p>
-                            <p><strong style="font-size:large; ">Cedula:</strong> {{ r.cedula }}</p>
-                            <p><strong style="font-size:large; ">E-mail:</strong> {{ r.email }}</p>
-                            <p><strong style="font-size:large; ">Nombre:</strong> {{ r.nombre }}</p>
-                            <p><strong style="font-size:large; ">Apellido:</strong> {{ r.apellidos }}</p>
-                            <p><strong style="font-size:large; ">Telefono:</strong> {{ r.telefono }}</p>
-                            <p><strong style="font-size:large; ">Curriculum:</strong> <a :href="r.curriculum"
-                                    target="_blank">Curriculum</a> </p>
-                            <p><strong style="font-size:large; ">Perfil Profesional:</strong> {{ r.perfilProfesional }}
-                            </p>
-                            <p v-if="r.RolUsuario === 'Instructor'"><strong style="font-size:large; ">Red de
-                                    Conocimiento:</strong>
-                                {{ r.RedConocimiento }}
-                            </p>
-                        </q-card-section>
-                        <q-card-section>
-                        </q-card-section>
-                    </q-card>
-                </q-card-section>
-                <q-card-actions align="right">
-                    <q-btn flat label="Cerrar" @click="limpiarFormulario()" color="primary" v-close-popup />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -197,7 +123,7 @@ let detalle = ref(false)
 let bd = ref(false);
 let check = ref("");
 let isPwd = ref(true);
-let user = ref([]);
+let Ciudad = ref([]);
 let Rol = ref([])
 let Red = ref([])
 let nombre = ref("");
@@ -219,23 +145,12 @@ let r = ref({ value: { estado: true } });
 let opciones = ref([])
 let RedCon = ref([])
 
-
-const filteredUsers = computed(() => {
-    if (useLogin.rol == "Administrador") {
-        return user.value.filter(u => u.estado === true);
-    } else {
-        return user.value;
-    }
-});
-
 let columns = [
-    { name: "perfil", align: "center", label: "Perfil", field: "Perfil" },
     { name: "nombre", align: "center", label: "Nombre", field: "nombre" },
-    { name: "apellido", align: "center", label: "Apellido", field: "apellidos" },
-    { name: "rolUsuario", align: "center", label: "Rol", field: "RolUsuario" },
-    { name: "email", label: "E-mail", align: "center", field: "email" },
-    { name: "estado", label: "Estado", align: "center", field: "estado" },
-    { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+    { name: "CodigoDaneCiudad", align: "center", label: "Dane Ciudad", field: "CodigoDaneCiudad" },
+    { name: "region", align: "center", label: "Region", field: "region" },
+    { name: "departamento", label: "Departamento", align: "center", field: "departamento" },
+    { name: "CodigoDaneDepartamento", label: "Dane Departamento", align: "center", field: "CodigoDaneDepartamento" },
 ];
 
 const emailValido = ref(true); // Inicialmente se asume que el correo es válido
@@ -267,11 +182,11 @@ const subir_curriculum = (event) => {
 
 const filter = ref("");
 
-async function listarUsuarios() {
+async function listarCiudades() {
     load.value = true
-    let usuarios = await useCiudades.getCiudades(useLogin.token);
-    console.log(usuarios);
-    user.value = usuarios.data.Usuarios;
+    let Ciudades = await useCiudades.getCiudades(useLogin.token);
+    console.log(Ciudades);
+    Ciudad.value = Ciudades.data.Ciudades;
     load.value = false
 }
 
@@ -352,25 +267,20 @@ async function guardar() {
     try {
         const response = await useUsuario.addUsuarios({
             nombre: nombre.value,
-            apellidos: apellidos.value,
-            cedula: cedula.value,
-            telefono: telefono.value,
-            email: email.value,
-            password: password.value,
-            perfilProfesional: perfilProfesional.value,
-            curriculum: curriculum.value,
-            RolUsuario: RolUsuario.value.value,
-            RedConocimiento: RedConocimiento.value.value,
+            CodigoDaneCiudad: CodigoDaneCiudad.value,
+            region: region.value,
+            departamento: departamento.value,
+            CodigoDaneDepartamento: CodigoDaneDepartamento.value,
         });
         console.log(response.status);
         if (response.status == 201) {
-            console.log("Se guardó un nuevo usuario");
+            console.log("Se guardó una nueva Ciudad");
             alert.value = false;
-            listarUsuarios();
+            listarCiudades();
             limpiarFormulario();
             // Cierra la alerta
         } else {
-            console.error("Error al guardar el usuario");
+            console.error("Error al guardar la ciudad");
             // Puedes mostrar un mensaje de error aquí si es necesario
         }
     } catch (error) {
@@ -384,24 +294,14 @@ async function validaredit() {
     validarEmail()
     if (nombre.value.trim() === "") {
         mostrarAlerta("El Nombre es obligatorio");
-    } else if (apellidos.value.trim() === "") {
-        mostrarAlerta("El Apellido es obligatorio");
-    } else if (email.value.trim() === "") {
-        mostrarAlerta("El Correo Electrónico es obligatorio");
-    } else if (emailValido.value === true) {
-        mostrarAlerta("Escriba correctamente el su E-mail");
-    } else if (!telefono.value) {
-        mostrarAlerta("El Teléfono es obligatorio");
-    } else if (!RolUsuario.value) {
-        mostrarAlerta("Rol del usrario es obligatorio");
-    } else if (!curriculum.value) {
-        mostrarAlerta("El curriculum es obligatorio");
-    } else if (!cedula.value) {
-        mostrarAlerta("La Cédula es obligatoria");
-    } else if (!perfilProfesional.value) {
-        mostrarAlerta("El perfil profecional del usuario es obligatorio")
-    } else if (!RedConocimiento.value) {
-        mostrarAlerta("La Red de conocimineto es obligatorio");
+    } else if (CodigoDaneCiudad.value.trim() === "") {
+        mostrarAlerta("El Codigo Dane de la ciudad es obligatorio");
+    } else if (region.value.trim() === "") {
+        mostrarAlerta("La region es obligatorio");
+    } else if (departamento.value.trim() === "") {
+        mostrarAlerta("El Depatrtamento es obligatorio");
+    } else if (CodigoDaneDepartamento.value.trim() === "") {
+        mostrarAlerta("El Codigo Dne del Departamento es obligatorio");
     } else {
         // Todos los campos están completos y válidos, guarda los datos
         console.log("paso validacion");
@@ -411,32 +311,16 @@ async function validaredit() {
 
 }
 
-function detalles(props) {
-    r.value = props.row;
-    detalle.value = true;
-    email.value = r.value.email;
-    cedula.value = r.value.cedula;
-    nombre.value = r.value.nombre;
-    apellidos.value = r.value.apellidos;
-    telefono.value = r.value.telefono;
-}
-
 function edito(props) {
     r.value = props.row;
     bd.value = true;
     alert.value = true;
     indice.value = r.value._id;
     nombre.value = r.value.nombre;
-    apellidos.value = r.value.apellidos;
-    cedula.value = r.value.cedula;
-    telefono.value = r.value.telefono;
-    email.value = r.value.email;
-    password.value = r.value.password
-    perfilProfesional.value = r.value.perfilProfesional
-    curriculum.value = r.value.curriculum
-    RolUsuario.value = r.value.RolUsuario
-    RedConocimiento.value = r.value.RedConocimiento
-
+    CodigoDaneCiudad.value = r.value.CodigoDaneCiudad;
+    region.value = r.value.region;
+    departamento.value = r.value.departamento;
+    CodigoDaneDepartamento.value = r.value.CodigoDaneDepartamento;
 }
 
 async function editarUser() {
@@ -485,7 +369,7 @@ async function editarUser() {
         if (r.status === 201) {
             console.log(r);
             console.log("Se edito el usuario con exito");
-            listarUsuarios();
+            listarCiudades();
             limpiarFormulario();
             alert.value = false; // Cierra la alerta
         } else {
@@ -544,16 +428,13 @@ function limpiarFormulario() {
     check.value = ""
 }
 
-listarUsuarios();
-
-
 function agregar() {
     alert.value = true;
 }
 
 
 onMounted(() => {
-    listarUsuarios();
+    listarCiudades();
     listarRoles();
     listaRedCon();
     limpiarFormulario();

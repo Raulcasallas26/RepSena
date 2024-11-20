@@ -30,7 +30,6 @@ const httpCentrosFormacion = {
             direccion
         });
             const nuevoCentrosFormacion = await CentrosFormacion.save();
-
             res.json({
                 mensaje: "Un centro ingresado!!",
                 CentrosFormacion: nuevoCentrosFormacion

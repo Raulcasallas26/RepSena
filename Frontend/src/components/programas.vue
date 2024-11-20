@@ -147,8 +147,8 @@ let indice = ref(null);
 let columns = [
   { name: "denominacion", label: "Denominacion", align: "center", field: "denominacion", },
   { name: "version", label: "Version", align: "center", field: "version" },
-  { name: "nivel de formacion", label: "Nivel de formacion", align: "center", field: "nivelForma" },
-  { name: "archivo", label: "Documento", align: "center", field: "archivo" },
+  { name: "nivel de formacion", label: "Nivel de formacion", align: "center", field: "niveldeformacion" },
+  { name: "archivo", label: "Documento", align: "center", field: "archivoOEnlace" },
   { name: "estado", label: "Estado", align: "center", field: "estado" },
   { name: "opciones", label: "Opciones", align: "center",  },
 ];
@@ -203,8 +203,11 @@ async function ListarPorgrama() {
 
   // Obtener los programas de formación
   let programas = await useProgramas.getProgramasFormacion(useLogin.token);
+  console.log(programas);
+  
   Porgrama.value = programas.data.ProgramasFormacion;
   console.log(Porgrama.value);
+  
 
   // Obtener el ID de red del sessionStorage
   let idRedSesion = sessionStorage.getItem('programa');
@@ -372,10 +375,13 @@ function cerrar() {
   alert.value = false;
 }
 
-// Función para limpiar el campo
+function refresccar() {
+    if (!hasReloaded) {
+        window.location.reload();
+        sessionStorage.setItem('hasReloaded', true);
+    }
+}
 
-
-//fin
 onMounted(() => {
   ListarPorgrama();
   ListarNiveles();

@@ -291,7 +291,7 @@ async function Login() {
         console.log(resp);
         if (resp == 200) {
             console.log("sesion exitosa");
-            router.push("/home");
+            router.replace("/home");
             verdadero.value = Swal.fire({
                 position: 'center',
                 icon: 'success',

@@ -40,6 +40,7 @@ export const useLoginStore = defineStore(
             rol.value = ""
             sessionStorage.setItem('usestado', JSON.stringify(false));
             sessionStorage.setItem('useRed', JSON.stringify(false));
+            sessionStorage.setItem('hasReloaded', JSON.stringify(false));
             router.push("/")
         }
 

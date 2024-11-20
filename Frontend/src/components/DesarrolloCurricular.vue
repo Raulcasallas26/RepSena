@@ -199,18 +199,26 @@ let r = ref(null)
 let check = ref("");
 const VerDoc = ref(false);
 const documentUrl = ref("");
-let hasReloaded = false;
+sessionStorage.setItem('hasReloaded', false); 
 
 function refresccar() {
-    if (!hasReloaded) {
+    console.log(sessionStorage.getItem('hasReloaded'));
+    if (sessionStorage.getItem('hasReloaded') == true) {
+        console.log("!refresque");
+        
         window.location.reload();
-        hasReloaded = true;
+        sessionStorage.setItem('hasReloaded', false);        
     }
+    sessionStorage.getItem('hasReloaded')
 }
+
+refresccar()
 
 async function ListarDesarrollo() {
     load.value = true;
-
+    console.log(" voy a refrescar");
+    
+    refresccar()
     // Obtener los programas de formación
     let programas = await useDesarrolloCurricular.getDesarrolloCurricular(useLogin.token);
     desarrolloCur.value = programas.data.Desarrollo;
@@ -230,7 +238,8 @@ async function ListarDesarrollo() {
             console.error('Error al parsear el ID de red del sessionStorage:', error);
         }
     }
-    load.value = false;;
+    load.value = false;
+    refresccar()
 }
 
 async function ListarGuias() {
@@ -447,6 +456,8 @@ function limpiarFormulario() {
 
     alert.value = false;
 }
+
+
 
 onMounted(async () => {
     ListarDesarrollo();

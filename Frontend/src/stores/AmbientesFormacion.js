@@ -7,7 +7,12 @@ export const useAmbientesFormacionStore = defineStore(
     "AmbientesFormacion", () => {
         const addAmbientesFormacion = async (info) => {
             try {
-                let res = await axios.post(`${urlBackend}/AmbientesFormacion`, info)
+                const formData = new FormData()
+                for (const key in info) {
+                    formData.append(key, info[key])
+                }
+                formData.append('documentos', documentos)
+                let res = await axios.post(`${urlBackend}/AmbientesFormacion`, formData)
                 Notify.create({
                     color: "positive",
                     message: "Registro de Ambiente exitoso",
